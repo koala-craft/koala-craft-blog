@@ -3,7 +3,8 @@
  */
 
 import { createServerFn } from '@tanstack/react-start'
-import { getSupabase } from '~/shared/lib/supabase'
+import { getOrSet, invalidateContent } from '~/shared/lib/cache'
+import { requireAdminAuth } from '~/features/admin/requireAdminAuth'
 import {
   parseRepoUrl,
   isValidGithubRepoUrl,
@@ -18,15 +19,8 @@ import type { WorksData, WorkItem } from './types'
 
 const WORKS_PATH = '.obsidian-log/works.json'
 
-function getGitHubUsername(user: { user_metadata?: Record<string, unknown> }): string | null {
-  const meta = user.user_metadata
-  if (!meta) return null
-  const name = (meta.user_name ?? meta.user_login ?? meta.login) as string | undefined
-  return typeof name === 'string' ? name : null
-}
-
 export const getWorks = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<WorksData> => getWorksForServer()
+  async (): Promise<WorksData> => getOrSet('works', () => getWorksForServer())
 )
 
 export type SetWorksInput = {
@@ -38,18 +32,8 @@ export type SetWorksInput = {
 export const setWorks = createServerFn({ method: 'POST' })
   .inputValidator((data: SetWorksInput) => data)
   .handler(async ({ data }): Promise<{ success: boolean; error?: string }> => {
-    const supabase = getSupabase()
-    if (!supabase) return { success: false, error: 'Supabase が設定されていません' }
-
-    const { data: { user }, error } = await supabase.auth.getUser(data.accessToken)
-    if (error || !user) return { success: false, error: '認証が必要です' }
-
-    const username = getGitHubUsername(user)
-    if (!username) return { success: false, error: 'GitHub ユーザー名を取得できません' }
-
-    const { isAdminByUsername } = await import('~/shared/lib/config')
-    const isAdmin = await isAdminByUsername(username)
-    if (!isAdmin) return { success: false, error: '管理者権限がありません' }
+    const auth = await requireAdminAuth(data.accessToken)
+    if (!auth.ok) return { success: false, error: auth.error }
 
     const { getConfigForServer } = await import('~/shared/lib/config')
     const config = await getConfigForServer()
@@ -78,6 +62,7 @@ export const setWorks = createServerFn({ method: 'POST' })
 
     if (result.success) {
       writeLocalWorks(data.works)
+      invalidateContent()
     }
     return result
   })
@@ -115,18 +100,8 @@ export const uploadWorkThumbnail = createServerFn({ method: 'POST' })
     async ({
       data,
     }): Promise<{ success: true; url: string } | { success: false; error: string }> => {
-      const supabase = getSupabase()
-      if (!supabase) return { success: false, error: 'Supabase が設定されていません' }
-
-      const { data: { user }, error } = await supabase.auth.getUser(data.accessToken)
-      if (error || !user) return { success: false, error: '認証が必要です' }
-
-      const username = getGitHubUsername(user)
-      if (!username) return { success: false, error: 'GitHub ユーザー名を取得できません' }
-
-      const { isAdminByUsername } = await import('~/shared/lib/config')
-      const isAdmin = await isAdminByUsername(username)
-      if (!isAdmin) return { success: false, error: '管理者権限がありません' }
+      const auth = await requireAdminAuth(data.accessToken)
+      if (!auth.ok) return { success: false, error: auth.error }
 
       const { getConfigForServer } = await import('~/shared/lib/config')
       const current = await getConfigForServer()
@@ -166,6 +141,7 @@ export const uploadWorkThumbnail = createServerFn({ method: 'POST' })
 
       if (!result.success) return { success: false, error: result.error ?? 'アップロードに失敗しました' }
 
+      invalidateContent()
       const rawUrl = `https://raw.githubusercontent.com/${parsed.owner}/${parsed.repo}/main/${path}`
       return { success: true, url: rawUrl }
     }

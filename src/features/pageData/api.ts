@@ -5,7 +5,7 @@
 
 import { createServerFn } from '@tanstack/react-start'
 import { getOrSet } from '~/shared/lib/cache'
-import { getConfigForServer } from '~/shared/lib/config'
+import { getConfig } from '~/features/admin/configApi'
 import { getArticles } from '~/features/articles/api'
 import { getScraps } from '~/features/scraps/api'
 import { getBlogPosts } from '~/features/blog/api'
@@ -49,7 +49,7 @@ export const getHomePageData = createServerFn({ method: 'GET' }).handler(
         getArticles(),
         getScraps(),
         getBlogPosts(),
-        getConfigForServer(),
+        getConfig(),
       ])
       return {
         articles,
@@ -77,7 +77,7 @@ export const getAuthorPageData = createServerFn({ method: 'GET' }).handler(
   async (): Promise<AuthorPageData> => {
     return getOrSet('page:author', async () => {
       const [config, works] = await Promise.all([
-        getConfigForServer(),
+        getConfig(),
         getWorks(),
       ])
       return {

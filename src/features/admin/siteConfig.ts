@@ -39,56 +39,6 @@ export function validateZennUsername(value: string): { valid: boolean; error?: s
   return { valid: true }
 }
 
-export async function getZennUsername(): Promise<string> {
-  const config = await getConfig()
-  return config.zenn_username
-}
-
-export async function getGithubRepoUrl(): Promise<string> {
-  const config = await getConfig()
-  return config.github_repo_url
-}
-
-export async function getSiteHeader(): Promise<{ title: string; subtitle: string }> {
-  const config = await getConfig()
-  return {
-    title: config.site_title ?? '',
-    subtitle: config.site_subtitle ?? '',
-  }
-}
-
-export async function getAuthorIcon(): Promise<string> {
-  const config = await getConfig()
-  return config.author_icon ?? ''
-}
-
-export async function getAuthorName(): Promise<string> {
-  const config = await getConfig()
-  return config.author_name ?? ''
-}
-
-export async function getAuthorOneLiner(): Promise<string> {
-  const config = await getConfig()
-  return config.author_one_liner ?? ''
-}
-
-
-export async function setGithubRepoUrl(url: string): Promise<{ success: boolean; error?: string }> {
-  const validation = validateGithubRepoUrl(url)
-  if (!validation.valid) {
-    return { success: false, error: validation.error }
-  }
-  return setConfigPartial({ github_repo_url: url })
-}
-
-export async function setZennUsername(username: string): Promise<{ success: boolean; error?: string }> {
-  const validation = validateZennUsername(username)
-  if (!validation.valid) {
-    return { success: false, error: validation.error }
-  }
-  return setConfigPartial({ zenn_username: username })
-}
-
 const SITE_TITLE_MAX_LENGTH = 100
 const SITE_SUBTITLE_MAX_LENGTH = 200
 
@@ -100,17 +50,6 @@ export function validateSiteHeader(title: string, subtitle: string): { valid: bo
     return { valid: false, error: `説明文は${SITE_SUBTITLE_MAX_LENGTH}文字以内で入力してください` }
   }
   return { valid: true }
-}
-
-export async function setSiteHeader(
-  title: string,
-  subtitle: string
-): Promise<{ success: boolean; error?: string }> {
-  const validation = validateSiteHeader(title, subtitle)
-  if (!validation.valid) {
-    return { success: false, error: validation.error }
-  }
-  return setConfigPartial({ site_title: title.trim(), site_subtitle: subtitle.trim() })
 }
 
 const AUTHOR_NAME_MAX_LENGTH = 100

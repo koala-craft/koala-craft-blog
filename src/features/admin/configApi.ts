@@ -7,7 +7,7 @@ import { createServerFn } from '@tanstack/react-start'
 import type { AppConfig } from '~/shared/lib/config'
 import { writeLocalConfig } from '~/shared/lib/config'
 import { invalidateContent } from '~/shared/lib/cache'
-import { getSupabase } from '~/shared/lib/supabase'
+import { requireAdminAuth } from '~/features/admin/requireAdminAuth'
 import {
   parseRepoUrl,
   isValidGithubRepoUrl,
@@ -16,13 +16,6 @@ import {
 } from '~/shared/lib/github'
 
 const CONFIG_PATH = '.obsidian-log/config.json'
-
-function getGitHubUsername(user: { user_metadata?: Record<string, unknown> }): string | null {
-  const meta = user.user_metadata
-  if (!meta) return null
-  const name = (meta.user_name ?? meta.user_login ?? meta.login) as string | undefined
-  return typeof name === 'string' ? name : null
-}
 
 export const getConfig = createServerFn({ method: 'GET' }).handler(
   async (): Promise<AppConfig> => {
@@ -47,18 +40,8 @@ export type SetConfigInput = {
 export const setConfig = createServerFn({ method: 'POST' })
   .inputValidator((data: SetConfigInput) => data)
   .handler(async ({ data }): Promise<{ success: boolean; error?: string }> => {
-    const supabase = getSupabase()
-    if (!supabase) return { success: false, error: 'Supabase が設定されていません' }
-
-    const { data: { user }, error } = await supabase.auth.getUser(data.accessToken)
-    if (error || !user) return { success: false, error: '認証が必要です' }
-
-    const username = getGitHubUsername(user)
-    if (!username) return { success: false, error: 'GitHub ユーザー名を取得できません' }
-
-    const { isAdminByUsername } = await import('~/shared/lib/config')
-    const isAdmin = await isAdminByUsername(username)
-    if (!isAdmin) return { success: false, error: '管理者権限がありません' }
+    const auth = await requireAdminAuth(data.accessToken)
+    if (!auth.ok) return { success: false, error: auth.error }
 
     const { getConfigForServer } = await import('~/shared/lib/config')
     let repoUrl = data.github_repo_url
@@ -139,18 +122,8 @@ export const uploadAuthorIcon = createServerFn({ method: 'POST' })
     async ({
       data,
     }): Promise<{ success: true; url: string } | { success: false; error: string }> => {
-      const supabase = getSupabase()
-      if (!supabase) return { success: false, error: 'Supabase が設定されていません' }
-
-      const { data: { user }, error } = await supabase.auth.getUser(data.accessToken)
-      if (error || !user) return { success: false, error: '認証が必要です' }
-
-      const username = getGitHubUsername(user)
-      if (!username) return { success: false, error: 'GitHub ユーザー名を取得できません' }
-
-      const { isAdminByUsername } = await import('~/shared/lib/config')
-      const isAdmin = await isAdminByUsername(username)
-      if (!isAdmin) return { success: false, error: '管理者権限がありません' }
+      const auth = await requireAdminAuth(data.accessToken)
+      if (!auth.ok) return { success: false, error: auth.error }
 
       const { getConfigForServer } = await import('~/shared/lib/config')
       const current = await getConfigForServer()

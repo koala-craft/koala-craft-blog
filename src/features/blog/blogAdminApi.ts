@@ -4,8 +4,8 @@
  */
 
 import { createServerFn } from '@tanstack/react-start'
-import { getSupabase } from '~/shared/lib/supabase'
 import { getGithubRepoUrlForServer } from '~/shared/lib/contentSource'
+import { requireAdminAuth } from '~/features/admin/requireAdminAuth'
 import {
   parseRepoUrl,
   isValidGithubRepoUrl,
@@ -38,13 +38,6 @@ function getFirstViewPathFromRawUrl(
   const filePath = rest.join('/')
   if (!filePath.startsWith('blog/assets/') || filePath.includes('..')) return null
   return filePath
-}
-
-function getGitHubUsername(user: { user_metadata?: Record<string, unknown> }): string | null {
-  const meta = user.user_metadata
-  if (!meta) return null
-  const name = (meta.user_name ?? meta.user_login ?? meta.login) as string | undefined
-  return typeof name === 'string' ? name : null
 }
 
 function buildFrontmatter(post: {
@@ -88,18 +81,8 @@ export type CreateBlogPostInput = {
 export const createBlogPost = createServerFn({ method: 'POST' })
   .inputValidator((data: CreateBlogPostInput) => data)
   .handler(async ({ data }): Promise<{ success: boolean; error?: string }> => {
-    const supabase = getSupabase()
-    if (!supabase) return { success: false, error: 'Supabase が設定されていません' }
-
-    const { data: { user }, error } = await supabase.auth.getUser(data.accessToken)
-    if (error || !user) return { success: false, error: '認証が必要です' }
-
-    const username = getGitHubUsername(user)
-    if (!username) return { success: false, error: 'GitHub ユーザー名を取得できません' }
-
-    const { isAdminByUsername } = await import('~/shared/lib/config')
-    const isAdmin = await isAdminByUsername(username)
-    if (!isAdmin) return { success: false, error: '管理者権限がありません' }
+    const auth = await requireAdminAuth(data.accessToken)
+    if (!auth.ok) return { success: false, error: auth.error }
 
     if (!validateSlug(data.slug)) {
       return { success: false, error: 'スラッグは英数字・ハイフン・アンダースコアのみ使用できます' }
@@ -174,18 +157,8 @@ export const updateBlogPost = createServerFn({ method: 'POST' })
   })
 
 async function updateBlogPostHandler(data: UpdateBlogPostInput): Promise<{ success: boolean; error?: string }> {
-    const supabase = getSupabase()
-    if (!supabase) return { success: false, error: 'Supabase が設定されていません' }
-
-    const { data: { user }, error } = await supabase.auth.getUser(data.accessToken)
-    if (error || !user) return { success: false, error: '認証が必要です' }
-
-    const username = getGitHubUsername(user)
-    if (!username) return { success: false, error: 'GitHub ユーザー名を取得できません' }
-
-    const { isAdminByUsername } = await import('~/shared/lib/config')
-    const isAdmin = await isAdminByUsername(username)
-    if (!isAdmin) return { success: false, error: '管理者権限がありません' }
+    const auth = await requireAdminAuth(data.accessToken)
+    if (!auth.ok) return { success: false, error: auth.error }
 
     if (!validateSlug(data.slug)) {
       return { success: false, error: 'スラッグは英数字・ハイフン・アンダースコアのみ使用できます' }
@@ -382,18 +355,8 @@ export const saveBlogImageToTemp = createServerFn({ method: 'POST' })
 export const clearBlogTempAssets = createServerFn({ method: 'POST' })
   .inputValidator((data: { accessToken: string }) => data)
   .handler(async ({ data }): Promise<{ success: boolean }> => {
-    const supabase = getSupabase()
-    if (!supabase) return { success: false }
-
-    const { data: { user }, error } = await supabase.auth.getUser(data.accessToken)
-    if (error || !user) return { success: false }
-
-    const username = getGitHubUsername(user)
-    if (!username) return { success: false }
-
-    const { isAdminByUsername } = await import('~/shared/lib/config')
-    const isAdmin = await isAdminByUsername(username)
-    if (!isAdmin) return { success: false }
+    const auth = await requireAdminAuth(data.accessToken)
+    if (!auth.ok) return { success: false }
 
     clearTempAssets()
     return { success: true }
@@ -433,18 +396,8 @@ async function prepareBlogContentForSaveHandler(
   | { success: true; content: string; firstView?: string }
   | { success: false; error: string }
 > {
-      const supabase = getSupabase()
-      if (!supabase) return { success: false, error: 'Supabase が設定されていません' }
-
-      const { data: { user }, error } = await supabase.auth.getUser(data.accessToken)
-      if (error || !user) return { success: false, error: '認証が必要です' }
-
-      const username = getGitHubUsername(user)
-      if (!username) return { success: false, error: 'GitHub ユーザー名を取得できません' }
-
-      const { isAdminByUsername } = await import('~/shared/lib/config')
-      const isAdmin = await isAdminByUsername(username)
-      if (!isAdmin) return { success: false, error: '管理者権限がありません' }
+      const auth = await requireAdminAuth(data.accessToken)
+      if (!auth.ok) return { success: false, error: auth.error }
 
       const githubUrl = await getGithubRepoUrlForServer()
       if (!githubUrl || !isValidGithubRepoUrl(githubUrl)) {
@@ -551,18 +504,8 @@ export const uploadBlogImage = createServerFn({ method: 'POST' })
     async ({
       data,
     }): Promise<{ success: true; url: string } | { success: false; error: string }> => {
-      const supabase = getSupabase()
-      if (!supabase) return { success: false, error: 'Supabase が設定されていません' }
-
-      const { data: { user }, error } = await supabase.auth.getUser(data.accessToken)
-      if (error || !user) return { success: false, error: '認証が必要です' }
-
-      const username = getGitHubUsername(user)
-      if (!username) return { success: false, error: 'GitHub ユーザー名を取得できません' }
-
-      const { isAdminByUsername } = await import('~/shared/lib/config')
-      const isAdmin = await isAdminByUsername(username)
-      if (!isAdmin) return { success: false, error: '管理者権限がありません' }
+      const auth = await requireAdminAuth(data.accessToken)
+      if (!auth.ok) return { success: false, error: auth.error }
 
       if (!validateSlug(data.slug)) {
         return { success: false, error: 'スラッグが不正です' }
@@ -621,18 +564,8 @@ export type DeleteBlogPostInput = {
 export const deleteBlogPost = createServerFn({ method: 'POST' })
   .inputValidator((data: DeleteBlogPostInput) => data)
   .handler(async ({ data }): Promise<{ success: boolean; error?: string }> => {
-    const supabase = getSupabase()
-    if (!supabase) return { success: false, error: 'Supabase が設定されていません' }
-
-    const { data: { user }, error } = await supabase.auth.getUser(data.accessToken)
-    if (error || !user) return { success: false, error: '認証が必要です' }
-
-    const username = getGitHubUsername(user)
-    if (!username) return { success: false, error: 'GitHub ユーザー名を取得できません' }
-
-    const { isAdminByUsername } = await import('~/shared/lib/config')
-    const isAdmin = await isAdminByUsername(username)
-    if (!isAdmin) return { success: false, error: '管理者権限がありません' }
+    const auth = await requireAdminAuth(data.accessToken)
+    if (!auth.ok) return { success: false, error: auth.error }
 
     if (!validateSlug(data.slug)) {
       return { success: false, error: 'スラッグが不正です' }

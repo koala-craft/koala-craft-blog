@@ -5,6 +5,18 @@
 
 const DEFAULT_TTL_MS = 30 * 60 * 1000 // 30分
 
+/** コンテンツ関連のキャッシュキー一覧。invalidateContent で使用 */
+export const CONTENT_CACHE_KEYS = [
+  'articles',
+  'scraps',
+  'blog',
+  'config',
+  'works',
+  'page:home',
+  'page:tech',
+  'page:author',
+] as const
+
 interface CacheEntry<T> {
   value: T
   expiresAt: number
@@ -46,15 +58,7 @@ export function invalidate(key: string): void {
  * コンテンツ関連のキャッシュを一括削除
  */
 export function invalidateContent(): void {
-  for (const key of [
-    'articles',
-    'scraps',
-    'blog',
-    'config',
-    'page:home',
-    'page:tech',
-    'page:author',
-  ]) {
+  for (const key of CONTENT_CACHE_KEYS) {
     store.delete(key)
   }
 }
