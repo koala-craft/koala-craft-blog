@@ -1,10 +1,11 @@
 import { CheckCircle2, Send } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-const INPUT_STYLES =
-  'w-full px-4 py-3 bg-zinc-800/80 border border-zinc-700 rounded-lg text-zinc-100 placeholder-zinc-500 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+const INPUT_BASE =
+  'w-full px-0 py-3 bg-transparent border-0 border-b border-zinc-600 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500/70 focus:placeholder-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
 
-const LABEL_STYLES = 'block text-sm font-medium text-zinc-300 mb-1.5'
+const TEXTAREA_BASE =
+  'w-full px-0 py-3 bg-transparent border-0 border-b border-zinc-600 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500/70 focus:placeholder-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed resize-none transition-colors min-h-[120px]'
 
 function isHTMLFormElement(el: EventTarget | null): el is HTMLFormElement {
   return el instanceof HTMLFormElement
@@ -85,50 +86,50 @@ export function ContactForm() {
       className="space-y-6"
       noValidate
     >
-      <div>
-        <label htmlFor="contact-name" className={LABEL_STYLES}>
-          お名前 <span className="text-zinc-500" aria-hidden>必須</span>
-        </label>
-        <input
-          id="contact-name"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          maxLength={100}
-          autoComplete="name"
-          className={INPUT_STYLES}
-          placeholder="山田 太郎"
-          disabled={sending}
-          aria-required="true"
-          aria-invalid={result?.type === 'error' ? 'true' : undefined}
-        />
+      <div className="grid gap-6 sm:grid-cols-2">
+        <div>
+          <label htmlFor="contact-name" className="block text-sm text-zinc-500 mb-1">
+            お名前
+          </label>
+          <input
+            id="contact-name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            maxLength={100}
+            autoComplete="name"
+            className={INPUT_BASE}
+            placeholder="山田 太郎"
+            disabled={sending}
+            aria-required="true"
+            aria-invalid={result?.type === 'error' ? 'true' : undefined}
+          />
+        </div>
+        <div>
+          <label htmlFor="contact-email" className="block text-sm text-zinc-500 mb-1">
+            メールアドレス
+          </label>
+          <input
+            id="contact-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            maxLength={254}
+            autoComplete="email"
+            className={INPUT_BASE}
+            placeholder="example@email.com"
+            disabled={sending}
+            aria-required="true"
+            aria-invalid={result?.type === 'error' ? 'true' : undefined}
+          />
+        </div>
       </div>
 
       <div>
-        <label htmlFor="contact-email" className={LABEL_STYLES}>
-          メールアドレス <span className="text-zinc-500" aria-hidden>必須</span>
-        </label>
-        <input
-          id="contact-email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          maxLength={254}
-          autoComplete="email"
-          className={INPUT_STYLES}
-          placeholder="example@email.com"
-          disabled={sending}
-          aria-required="true"
-          aria-invalid={result?.type === 'error' ? 'true' : undefined}
-        />
-      </div>
-
-      <div>
-        <label htmlFor="contact-message" className={LABEL_STYLES}>
-          お問い合わせ内容{' '}
-          <span className="text-zinc-500" aria-hidden>必須</span>
+        <label htmlFor="contact-message" className="block text-sm text-zinc-500 mb-1">
+          お問い合わせ内容
         </label>
         <textarea
           id="contact-message"
@@ -136,9 +137,9 @@ export function ContactForm() {
           onChange={(e) => setMessage(e.target.value)}
           required
           maxLength={5000}
-          rows={6}
-          className={`${INPUT_STYLES} resize-y min-h-[140px]`}
-          placeholder="お問い合わせ内容をご記入ください"
+          rows={5}
+          className={TEXTAREA_BASE}
+          placeholder="こちらにメッセージをどうぞ"
           disabled={sending}
           aria-required="true"
           aria-invalid={result?.type === 'error' ? 'true' : undefined}
@@ -146,9 +147,11 @@ export function ContactForm() {
         />
         <p
           id="contact-message-hint"
-          className="text-xs text-zinc-500 mt-1.5 tabular-nums"
+          className={`mt-1 text-xs tabular-nums transition-colors ${
+            message.length >= 4500 ? 'text-amber-500/70' : 'text-zinc-600'
+          }`}
         >
-          {message.length.toLocaleString()} / 5,000 文字
+          {message.length.toLocaleString()} / 5,000
         </p>
       </div>
 
@@ -157,21 +160,22 @@ export function ContactForm() {
           ref={resultRef}
           role="alert"
           tabIndex={-1}
-          className="rounded-lg px-4 py-3 text-sm bg-amber-500/10 text-amber-400 border border-amber-500/20"
+          className="rounded-md px-3 py-2 text-sm text-amber-400/90 bg-amber-500/5 border border-amber-500/20"
         >
           {result.text}
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={sending}
-        className="group inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-zinc-600 bg-zinc-800/80 text-zinc-200 hover:border-cyan-500/50 hover:bg-cyan-500/10 hover:text-cyan-400 disabled:border-zinc-700 disabled:bg-zinc-800/50 disabled:text-zinc-500 disabled:cursor-not-allowed font-medium transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:ring-offset-2 focus:ring-offset-zinc-950 min-w-[140px]"
-      >
+      <div className="pt-4">
+        <button
+          type="submit"
+          disabled={sending}
+          className="group inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-zinc-400 border border-zinc-600 hover:border-cyan-500/50 hover:text-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:ring-offset-2 focus:ring-offset-zinc-950"
+        >
         {sending ? (
           <>
             <span
-              className="inline-block w-4 h-4 border-2 border-zinc-500/30 border-t-cyan-400 rounded-full animate-spin"
+              className="inline-block w-3.5 h-3.5 border border-zinc-500/30 border-t-zinc-400 rounded-full animate-spin"
               aria-hidden
             />
             送信中
@@ -179,13 +183,14 @@ export function ContactForm() {
         ) : (
           <>
             <Send
-              className="w-4 h-4 shrink-0 text-zinc-500 group-hover:text-cyan-400 transition-colors"
+              className="w-4 h-4 shrink-0 text-zinc-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all duration-200"
               aria-hidden
             />
             内容を確認する
           </>
         )}
-      </button>
+        </button>
+      </div>
 
       {showConfirmModal && (
         <ConfirmModal
@@ -314,21 +319,22 @@ function ContactSuccess() {
   return (
     <div
       ref={containerRef}
-      className="max-w-md mx-auto text-center py-12"
+      className="py-8"
       role="status"
       aria-live="polite"
       tabIndex={-1}
     >
-      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 mb-6">
-        <CheckCircle2 className="w-10 h-10" aria-hidden />
+      <div className="flex items-center gap-3">
+        <CheckCircle2 className="w-6 h-6 shrink-0 text-emerald-500/80" strokeWidth={1.5} aria-hidden />
+        <div>
+          <h2 className="text-lg font-semibold text-zinc-100">
+            届きました
+          </h2>
+          <p className="text-sm text-zinc-500 mt-0.5">
+            2〜3営業日以内にご返信いたします。
+          </p>
+        </div>
       </div>
-      <h2 className="text-xl font-semibold text-zinc-100 mb-2">
-        送信完了
-      </h2>
-      <p className="text-zinc-500 text-sm leading-relaxed">
-        お問い合わせいただきありがとうございます。
-        内容を確認のうえ、2〜3営業日以内にご返信いたします。
-      </p>
     </div>
   )
 }
