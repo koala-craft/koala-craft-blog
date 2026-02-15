@@ -1,0 +1,177 @@
+@import 'tailwindcss' source('../');
+@plugin "@tailwindcss/typography";
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light dark;
+  }
+
+  * {
+    @apply border-gray-200 dark:border-gray-800;
+  }
+
+  html,
+  body {
+    @apply text-gray-900 bg-gray-50 dark:bg-gray-950 dark:text-gray-200;
+    font-family: 'Zen Kaku Gothic New', 'Space Grotesk', sans-serif;
+  }
+
+  .using-mouse * {
+    outline: none !important;
+  }
+}
+
+/* スマートなスクロールバー（ダークテーマ対応） */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(63 63 70) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgb(63 63 70);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgb(82 82 91);
+}
+*::-webkit-scrollbar-thumb:active {
+  background: rgb(113 113 122);
+}
+
+/* Hero: prefers-reduced-motion の場合は動画を非表示 */
+@media (prefers-reduced-motion: reduce) {
+  .hero-video-backdrop {
+    display: none !important;
+  }
+  .hero-scroll-indicator svg {
+    animation: none !important;
+  }
+}
+
+/* トップページ TopCard: 横スクロールバー非表示 */
+.topcard-scroll {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.topcard-scroll::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* 記事・スクラップの Markdown 表示（prose カスタム） */
+.prose {
+  --tw-prose-links: var(--color-cyan-400);
+  --tw-prose-invert-links: var(--color-cyan-400);
+  --prose-br-spacing: 0.25em;
+}
+.prose :where(h1):not(:where([class~="not-prose"] *)),
+.prose :where(h2):not(:where([class~="not-prose"] *)) {
+  @apply mt-8 mb-3;
+}
+.prose :where(h1):not(:where([class~="not-prose"] *)):first-child {
+  @apply mt-0;
+}
+.prose pre {
+  @apply bg-zinc-900 rounded-lg overflow-x-auto;
+}
+.prose pre code {
+  @apply bg-transparent p-0 text-inherit;
+}
+.prose :where(code):not(:where([class~="not-prose"] *)) {
+  @apply bg-zinc-800 px-1.5 py-0.5 rounded text-sm;
+}
+.prose :where(pre):not(:where([class~="not-prose"] *)) code {
+  @apply bg-transparent px-0 py-0;
+}
+.prose-line-break {
+  display: block;
+  height: 24px;
+}
+
+/* 記事詳細: 可読性最適化（本文 1.05rem） */
+.article-prose {
+  @apply prose prose-invert prose-zinc max-w-none tracking-tight;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+.article-prose :where(p) {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.article-prose :where(p):first-child {
+  margin-top: 0;
+}
+.article-prose :where(h1, h2, h3, h4) {
+  @apply font-semibold text-zinc-100 mt-6 mb-2;
+}
+.article-prose :where(h1),
+.article-prose :where(h2) {
+  @apply mt-8 mb-3;
+}
+.article-prose :where(h1) { font-size: 1.5rem; }
+.article-prose :where(h2) { font-size: 1.25rem; }
+.article-prose :where(h3) { font-size: 1.125rem; }
+.article-prose :where(h4) { font-size: 1rem; }
+.article-prose :where(a) {
+  @apply text-cyan-400 no-underline hover:underline;
+}
+.article-prose :where(ul, ol) {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+  padding-left: 1.5em;
+}
+.article-prose :where(li) {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+.article-prose :where(blockquote) {
+  @apply border-l-4 border-zinc-600 pl-4 italic text-zinc-400 my-4;
+}
+.article-prose :where(ul > li p),
+.article-prose :where(ol > li p) {
+  margin-top: 0.375em;
+  margin-bottom: 0.375em;
+}
+.article-prose :where(ul > li > p:first-child),
+.article-prose :where(ol > li > p:first-child) {
+  margin-top: 0.5em;
+}
+.article-prose :where(ul > li > p:last-child),
+.article-prose :where(ol > li > p:last-child) {
+  margin-bottom: 0.5em;
+}
+
+/* select: スマートなドロップダウン */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.25rem;
+  padding-right: 2rem;
+}
+
+/* ブログエディタ: 執筆体験の最適化 */
+.blog-editor-textarea {
+  caret-color: var(--color-cyan-400);
+}
+.blog-editor-textarea::placeholder {
+  color: var(--color-zinc-600);
+}

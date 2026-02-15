@@ -1,0 +1,53 @@
+{
+  "items": [
+    {
+      "id": "work-professional-1",
+      "title": "業務システム開発a",
+      "startDate": "2024-04-01",
+      "isCurrent": true,
+      "comingSoon": false,
+      "description": "Webアプリケーションの設計・開発・保守。フロントエンド・バックエンド両方に対応。\n\n2025年6月～2026年02月（8ヵ月）\n(1)社内運営のプログラミング学習サイト 開発・運用・保守\nWebアプリ開発や、データサイエンス学習向けプログラミングサイトの開発・運用・保守・チーム管理業務を担当\n［Pjt規模］7名　\n［役割］　メンバー/サブリーダー/リーダー　\n［開発環境］Windows/Linux /Java/Srping Boot/PostgreSQL/AWS/Docker/Backlog/ Slack\n\n2025年4月～2025年06月（3ヵ月）\n(2)Wordpressサイトの新規ページ製造\n・Figmaのデザインデータを基にしたフロントエンドのコーディング及びWPプラグイン・テーマ開発\n［Pjt規模］8名　\n［役割］PG　\n［開発環境］Windows／HTML,CSS,JS,PHP／Maria DB／Wordpress／Backlog/Slack\n\n2024年2月～2025年03月（2ヵ月）\n(3)見積・受注管理システム\n・見積・受注管理システムの品質向上のためのテスト要員として参画\n［Pjt規模］9名\n［役割］テスター　\n［開発環境］Windows/ Java / Oracle / Teams\n\n2024年8月～2025年02月（6ヵ月）\n(4)Wordpressサイトの新規ページ製造PJ\n・Figmaのデザインデータを基にしたフロントエンドのコーディング及びWPプラグイン・テーマ開発\n［Pjt規模］3名\n［役割］ PG　\n［開発環境］Windows／HTML,CSS,JS,PHP／Maria DB／Wordpress／Backlog/Slack\n\n2024年4月～2024年08月（5ヵ月）\n(5)ニュースアプリプラットフォーム開発\n・Rust/Reactを用いたWebアプリケーションの機能改善・バグフィックス\n［Pjt規模］7名\n［役割］ PG　\n［開発環境］Windows,Linux / Rust / React / actix-web / Postgresql /Docker / Backlog /Slack\n\n\n■やってきたこと\n・フロントエンド/バックエンド/インフラを横断した開発\n・Java/JSライブラリ・FWを用いた開発\n・チーム開発におけるタスク整理/進捗管理\n・未経験/経験の浅い技術領域に関する早期のキャッチアップ",
+      "tags": [
+        "React",
+        "TypeScript",
+        "Spring Boot",
+        "PostgreSQL",
+        "AWS",
+        "Docker"
+      ],
+      "category": "professional"
+    },
+    {
+      "id": "work-personal-1",
+      "title": "ブログサイト・気楽に誠実に（本サイト）",
+      "startDate": "2026-02-14",
+      "endDate": "2026-02-15",
+      "isCurrent": false,
+      "comingSoon": false,
+      "description": "ブログ × タスク管理の可視化。Zenn連携・GitHub連携・管理画面を実装。\n\n## 主な機能\n\n### ブログ × コンテンツ統合\n- **Obsidian Log ブログ**: 技術に限らず、日記・メモ・思いつきを気軽に書けるブログ。管理画面から Markdown で執筆し、GitHub に直接保存\n- **Zenn インポート**: Zenn の記事・スクラップを GitHub 経由で取得・表示。技術ブログとして Zenn と連携しつつ、表示は自サイトで完結\n\n### 管理画面\n- **GitHub OAuth 認証**: パスワード不要。コンテンツ管理とアカウントを統一\n- **ブログ CRUD**: ライブプレビュー付きエディタで執筆。画像は貼り付けで GitHub にアップロード\n- **サイト設定**: リポジトリ URL・管理者リストを config.json で管理（DB 不要）\n\n### その他\n- **お問い合わせフォーム**: SMTP でメール送信（レート制限あり）\n- **Author ページ**: 実務・個人開発・副業の Work 一覧をタブで表示\n\n---\n\n## 工夫した点\n\n### 1. Zenn 依存を減らした設計\n記事・スクラップの取得を **GitHub リポジトリ** から行うことで、表示時に Zenn API に依存しない。Zenn からエクスポートして GitHub に同期すれば、自サイトで完結して表示できる。\n\n### 2. ブログと技術ブログの分離\n- **Zenn インポート**: 技術系に特化した記事・スクラップ\n- **オリジナルブログ**: 形式に縛られず自由に書ける\n\n用途に応じて書き分けられる構成にした。\nまた、ブログデータ保管専用リポジトリを個別に分離させることで、本ブログサイトリポジトリの肥大化を抑えるように設計した。\n\n### 3. コストゼロ運用\n- Vercel・Supabase・GitHub の無料枠で運用\n- DB は不使用。\n- 認証は Supabase Auth\n- 設定・コンテンツは GitHub に集約\n\n### 4. セキュリティ\n- config.json の SSRF 対策（GitHub URL 形式のみ許可）\n- slug のパストラバーサル対策\n- Markdown 表示の XSS 対策\n\n---\n\n## 技術スタック\n\n| 項目 | 技術 |\n|------|------|\n| フロントエンド | TanStack Start (React), TypeScript |\n| 認証 | Supabase Auth (GitHub OAuth) |\n| コンテンツ | GitHub (Markdown / JSON) |\n| ホスティング | Vercel |",
+      "href": "/",
+      "tags": [
+        "React",
+        "TanStack Start",
+        "Tailwind"
+      ],
+      "thumbnail": "https://raw.githubusercontent.com/koala-craft/Blog-Repo/main/.obsidian-log/works/work-personal-1/thumbnail.png",
+      "category": "personal"
+    },
+    {
+      "id": "work-1771107395914-x2yxhdh",
+      "title": "Todoアプリ",
+      "startDate": "2026-02-18",
+      "endDate": "2026-02-25",
+      "isCurrent": false,
+      "comingSoon": true,
+      "description": "Todoアプリ開発\n\n\n## 目的\n- Todoアプリで日々の作業進捗管理を行い、何をしようとしているのかの優先度を明確にする。\n- Todoの達成率や、過去にどんなことをしていたかなどを本サイトのAuthorページ表示できるようにする。",
+      "tags": [
+        "Next.js",
+        "Typescript",
+        "Supabase"
+      ],
+      "category": "personal"
+    }
+  ]
+}

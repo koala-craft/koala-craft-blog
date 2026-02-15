@@ -1,0 +1,15 @@
+{
+  "title": "サンプルスクラップ [開発] [メモ]",
+  "closed": false,
+  "archived": false,
+  "created_at": "2026-02-14",
+  "comments": [
+    {
+      "author": "developer",
+      "created_at": "2026-02-14",
+      "body_markdown": "## 開発ログ\n\nObsidian Log のひな型を作成中。\n\n- TanStack Start でプロジェクト構成\n- Supabase でタスク管理\n- content/ で開発時モック",
+      "body_updated_at": "2026-02-14",
+      "children": []
+    }
+  ]
+}
