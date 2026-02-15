@@ -33,7 +33,7 @@ function ContactPage() {
           Contact
         </h1>
         <p className="mt-1.5 text-zinc-400 text-sm sm:text-base">
-          気軽にどうぞ。2〜3日以内にご返信いたします。
+          お気軽にどうぞ。2〜3日以内にご返信いたします。
         </p>
         <div className="mt-10">
           <ContactForm />

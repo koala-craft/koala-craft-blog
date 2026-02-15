@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Sparkles, BookOpen, FileText } from 'lucide-react'
+import { Sparkles, BookOpen, FileText, HelpCircle } from 'lucide-react'
 
 export const Route = createFileRoute('/about')({
   component: AboutPage,
@@ -18,8 +18,8 @@ function AboutPage() {
           About this site.
         </h1>
         <p className="text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-          ここは、<span className="text-cyan-400 font-medium">学び</span>と
-          <span className="text-cyan-400 font-medium">発見</span>を溜めていく場所。
+          ここは、私の<span className="text-cyan-400 font-medium">学び</span>と
+          <span className="text-cyan-400 font-medium">発見</span>を溜めていくブログサイトです。
           <br />
           気楽に、でも誠実に、積み上げていきます。
         </p>
@@ -72,6 +72,19 @@ function AboutPage() {
                 探す →
               </span>
             </Link>
+
+            <div className="relative overflow-hidden rounded-2xl border border-zinc-700/60 bg-gradient-to-b from-zinc-800/80 to-zinc-900/80 p-6">
+              <div className="absolute -right-4 -top-4 text-cyan-500/5">
+                <HelpCircle className="h-24 w-24" strokeWidth={1} />
+              </div>
+              <HelpCircle className="mb-4 h-8 w-8 text-zinc-500" strokeWidth={1.5} />
+              <h3 className="mb-2 text-lg font-semibold text-zinc-100">
+                ?
+              </h3>
+              <p className="text-sm text-zinc-500 leading-relaxed">
+                ？？？
+              </p>
+            </div>
           </div>
         </section>
       </div>
