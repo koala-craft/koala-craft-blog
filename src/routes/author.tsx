@@ -1,26 +1,11 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { getConfig } from '~/features/admin/configApi'
-import { getWorks } from '~/features/works/worksApi'
+import { getAuthorPageData } from '~/features/pageData/api'
 import { getBlogImageSrc } from '~/shared/lib/blogImageUrl'
 import { SkillStacks } from '~/shared/components/SkillStacks'
 import { WorkSection } from '~/shared/components/WorkSection'
 
 export const Route = createFileRoute('/author')({
-  loader: async () => {
-    const [config, works] = await Promise.all([getConfig(), getWorks()])
-    const personalItems = works.items.filter((i) => i.category === 'personal')
-    const professionalItems = works.items.filter((i) => i.category === 'professional')
-    const sidejobItems = works.items.filter((i) => i.category === 'sidejob')
-    return {
-      authorIcon: config.author_icon?.trim() ?? '',
-      authorName: config.author_name?.trim() ?? '',
-      authorOneLiner: config.author_one_liner?.trim() ?? '',
-      zennUsername: config.zenn_username?.trim() ?? '',
-      personalItems,
-      professionalItems,
-      sidejobItems,
-    }
-  },
+  loader: () => getAuthorPageData(),
   component: AuthorPage,
 })
 

@@ -46,7 +46,15 @@ export function invalidate(key: string): void {
  * コンテンツ関連のキャッシュを一括削除
  */
 export function invalidateContent(): void {
-  for (const key of ['articles', 'scraps', 'blog', 'config']) {
+  for (const key of [
+    'articles',
+    'scraps',
+    'blog',
+    'config',
+    'page:home',
+    'page:tech',
+    'page:author',
+  ]) {
     store.delete(key)
   }
 }

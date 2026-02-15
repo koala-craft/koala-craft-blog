@@ -1,8 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect, useRef } from 'react'
 import { BookOpen, FileText } from 'lucide-react'
-import { getArticles } from '~/features/articles/api'
-import { getScraps } from '~/features/scraps/api'
+import { getTechPageData } from '~/features/pageData/api'
 import { articleMatchesSearch, getArticlePreview } from '~/features/articles/searchArticle'
 import { parseScrapTitle } from '~/features/scraps/parseScrapTitle'
 import { scrapMatchesSearch, getScrapPreview } from '~/features/scraps/searchScrap'
@@ -39,13 +38,7 @@ export const Route = createFileRoute('/tech/')({
         : undefined,
   }),
 
-  loader: async () => {
-    const [articles, scraps] = await Promise.all([
-      getArticles(),
-      getScraps(),
-    ])
-    return { articles, scraps }
-  },
+  loader: () => getTechPageData(),
 })
 
 function formatMonthKey(dateStr: string): string {

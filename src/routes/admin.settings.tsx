@@ -1,12 +1,7 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { useState, useEffect, useCallback } from 'react'
+import { createFileRoute, useRouter, useLoaderData } from '@tanstack/react-router'
+import { useState, useCallback } from 'react'
+import type { RootLoaderData } from '~/shared/types/rootLoader'
 import {
-  getGithubRepoUrl,
-  getZennUsername,
-  getAuthorName,
-  getSiteHeader,
-  getAuthorIcon,
-  getAuthorOneLiner,
   setSiteConfigAll,
   validateGithubRepoUrl,
   validateZennUsername,
@@ -23,36 +18,17 @@ export const Route = createFileRoute('/admin/settings')({
 
 function AdminSettings() {
   const router = useRouter()
-  const [url, setUrl] = useState('')
-  const [zennUsername, setZennUsernameState] = useState('')
-  const [authorName, setAuthorNameState] = useState('')
-  const [siteTitle, setSiteTitle] = useState('')
-  const [siteSubtitle, setSiteSubtitle] = useState('')
-  const [authorIcon, setAuthorIcon] = useState('')
-  const [authorOneLiner, setAuthorOneLiner] = useState('')
+  const rootData = useLoaderData({ from: '__root__' as const }) as RootLoaderData
+  const [url, setUrl] = useState(rootData.githubRepoUrl)
+  const [zennUsername, setZennUsernameState] = useState(rootData.zennUsername)
+  const [authorName, setAuthorNameState] = useState(rootData.authorName)
+  const [siteTitle, setSiteTitle] = useState(rootData.siteTitle)
+  const [siteSubtitle, setSiteSubtitle] = useState(rootData.siteSubtitle)
+  const [authorIcon, setAuthorIcon] = useState(rootData.authorIcon)
+  const [authorOneLiner, setAuthorOneLiner] = useState(rootData.authorOneLiner)
   const [authorIconUploading, setAuthorIconUploading] = useState(false)
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-
-  useEffect(() => {
-    const LOAD_TIMEOUT_MS = 15_000
-    const timer = setTimeout(() => setLoading(false), LOAD_TIMEOUT_MS)
-    Promise.all([getGithubRepoUrl(), getZennUsername(), getAuthorName(), getSiteHeader(), getAuthorIcon(), getAuthorOneLiner()])
-      .then(([repoUrl, username, name, header, icon, oneLiner]) => {
-        setUrl(repoUrl)
-        setZennUsernameState(username)
-        setAuthorNameState(name)
-        setSiteTitle(header.title)
-        setSiteSubtitle(header.subtitle)
-        setAuthorIcon(icon)
-        setAuthorOneLiner(oneLiner)
-      })
-      .finally(() => {
-        clearTimeout(timer)
-        setLoading(false)
-      })
-  }, [])
 
   const handleAuthorIconDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault()
@@ -167,15 +143,6 @@ function AdminSettings() {
         text: result.error ?? '保存に失敗しました',
       })
     }
-  }
-
-  if (loading) {
-    return (
-      <div>
-        <h1 className="text-3xl font-bold mb-8">サイト設定</h1>
-        <p className="text-zinc-500">読み込み中...</p>
-      </div>
-    )
   }
 
   return (

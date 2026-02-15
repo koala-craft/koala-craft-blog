@@ -2,10 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { BookOpen, FileText } from 'lucide-react'
 import { SiZenn } from 'react-icons/si'
-import { getArticles } from '~/features/articles/api'
-import { getScraps } from '~/features/scraps/api'
-import { getBlogPosts } from '~/features/blog/api'
-import { getSiteHeader } from '~/features/admin/siteConfig'
+import { getHomePageData } from '~/features/pageData/api'
 import { parseScrapTitle } from '~/features/scraps/parseScrapTitle'
 import { BlogCard } from '~/shared/components/BlogCard'
 import { ContactCTA } from '~/shared/components/ContactCTA'
@@ -13,26 +10,9 @@ import { Hero } from '~/shared/components/Hero'
 import { HomePageBackground } from '~/shared/components/HomePageBackground'
 import { TopCard } from '~/shared/components/TopCard'
 
-const DEFAULT_TITLE = '気楽に誠実に'
-const DEFAULT_SUBTITLE = 'ブログアプリ'
-
 export const Route = createFileRoute('/')({
   component: HomePage,
-  loader: async () => {
-    const [articles, scraps, blogPosts, header] = await Promise.all([
-      getArticles(),
-      getScraps(),
-      getBlogPosts(),
-      getSiteHeader(),
-    ])
-    return {
-      articles,
-      scraps,
-      blogPosts,
-      siteTitle: header.title || DEFAULT_TITLE,
-      siteSubtitle: header.subtitle || DEFAULT_SUBTITLE,
-    }
-  },
+  loader: () => getHomePageData(),
 })
 
 type ZennTab = 'articles' | 'scraps'

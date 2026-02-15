@@ -21,6 +21,9 @@ export const Route = createRootRoute({
       authorName: config.author_name?.trim() ?? '',
       authorIcon: config.author_icon?.trim() ?? '',
       siteTitle: config.site_title?.trim() ?? '',
+      siteSubtitle: config.site_subtitle?.trim() ?? '',
+      githubRepoUrl: config.github_repo_url?.trim() ?? '',
+      authorOneLiner: config.author_one_liner?.trim() ?? '',
     }
   },
   head: () => ({
