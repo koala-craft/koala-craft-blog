@@ -88,7 +88,13 @@ async function fetchBlogPostsFromGitHub(
     }
   }
 
-  return posts.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  return posts.sort((a, b) => {
+    const byCreated = b.createdAt.localeCompare(a.createdAt)
+    if (byCreated !== 0) return byCreated
+    const byUpdated = b.updatedAt.localeCompare(a.updatedAt)
+    if (byUpdated !== 0) return byUpdated
+    return b.slug.localeCompare(a.slug)
+  })
 }
 
 function fetchBlogPostsFromLocal(includePrivate = false): BlogPost[] {
@@ -110,7 +116,13 @@ function fetchBlogPostsFromLocal(includePrivate = false): BlogPost[] {
     }
   }
 
-  return posts.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  return posts.sort((a, b) => {
+    const byCreated = b.createdAt.localeCompare(a.createdAt)
+    if (byCreated !== 0) return byCreated
+    const byUpdated = b.updatedAt.localeCompare(a.updatedAt)
+    if (byUpdated !== 0) return byUpdated
+    return b.slug.localeCompare(a.slug)
+  })
 }
 
 export const getBlogPosts = createServerFn({ method: 'GET' }).handler(async (): Promise<BlogPost[]> => {

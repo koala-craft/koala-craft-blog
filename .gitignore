@@ -19,3 +19,5 @@ yarn.lock
 /playwright/.cache/
 .tanstack
 .blog-assets-temp
+
+.cursorrules

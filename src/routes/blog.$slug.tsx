@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router'
 import { getBlogPost } from '~/features/blog/api'
 import { getBlogImageSrc } from '~/shared/lib/blogImageUrl'
+import { formatDateForDisplay } from '~/shared/lib/formatDate'
 import { MarkdownWithLinkCards } from '~/shared/components/MarkdownWithLinkCards'
 import { ArticleAuthorFooter } from '~/shared/components/ArticleAuthorFooter'
 import { useSiteAuthor } from '~/shared/hooks/useSiteAuthor'
@@ -66,9 +67,9 @@ function BlogDetail() {
           </div>
         )}
         <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-zinc-500">
-          <time dateTime={post.createdAt}>{post.createdAt}</time>
+          <time dateTime={post.createdAt}>{formatDateForDisplay(post.createdAt)}</time>
           {post.updatedAt !== post.createdAt && (
-            <span>更新: {post.updatedAt}</span>
+            <span>更新: {formatDateForDisplay(post.updatedAt)}</span>
           )}
         </div>
       </header>

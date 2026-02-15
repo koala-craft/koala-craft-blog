@@ -118,7 +118,7 @@ export const createBlogPost = createServerFn({ method: 'POST' })
       return { success: false, error: 'GitHub トークンが必要です。ログインし直すか、GITHUB_TOKEN を設定してください' }
     }
 
-    const now = new Date().toISOString().split('T')[0] ?? ''
+    const now = new Date().toISOString().slice(0, 19) // YYYY-MM-DDTHH:mm:ss
     const post: BlogPost = {
       slug: data.slug,
       title: data.title.trim() || data.slug,
@@ -225,7 +225,7 @@ async function updateBlogPostHandler(data: UpdateBlogPostInput): Promise<{ succe
 
     const { getBlogPost } = await import('./api')
     const existing = await getBlogPost({ data: { slug: data.slug } })
-    const now = new Date().toISOString().split('T')[0] ?? ''
+    const now = new Date().toISOString().slice(0, 19) // YYYY-MM-DDTHH:mm:ss
 
     let contentToSave = data.content ?? ''
     if (isSlugChange) {

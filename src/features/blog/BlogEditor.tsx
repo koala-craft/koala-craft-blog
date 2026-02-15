@@ -13,6 +13,7 @@ import { getAdminBlogPosts } from '~/features/blog/api'
 import { getSession } from '~/features/admin/auth'
 import { MarkdownWithLinkCards } from '~/shared/components/MarkdownWithLinkCards'
 import { getBlogImageSrc } from '~/shared/lib/blogImageUrl'
+import { formatDateForDisplay } from '~/shared/lib/formatDate'
 
 const PROSE_BASE =
   'prose prose-invert prose-zinc max-w-none tracking-tight prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline prose-p:text-[1.05rem] prose-p:leading-[1.7] prose-li:text-[1.05rem] prose-li:my-0.5 prose-headings:font-semibold'
@@ -626,9 +627,9 @@ function ArticlePreview({
             )}
             {(createdAt || updatedAt) && (
               <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-zinc-500">
-                {createdAt && <time dateTime={createdAt}>{createdAt}</time>}
+                {createdAt && <time dateTime={createdAt}>{formatDateForDisplay(createdAt)}</time>}
                 {updatedAt !== createdAt && updatedAt && (
-                  <span>更新: {updatedAt}</span>
+                  <span>更新: {formatDateForDisplay(updatedAt)}</span>
                 )}
               </div>
             )}

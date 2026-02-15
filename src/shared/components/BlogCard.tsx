@@ -1,5 +1,6 @@
 import { Link, useNavigate } from '@tanstack/react-router'
 import { getBlogImageSrc } from '~/shared/lib/blogImageUrl'
+import { formatDateForDisplay } from '~/shared/lib/formatDate'
 import type { BlogPost } from '~/features/blog/types'
 
 type CompactVariant = 'default' | 'wide' | 'square' | 'tall'
@@ -93,7 +94,7 @@ export function BlogCard({
                   )
                 )}
                 {post.tags.length > 0 && <span className="text-zinc-500">·</span>}
-                <span>{post.createdAt}</span>
+                <span>{formatDateForDisplay(post.createdAt)}</span>
               </div>
             </div>
           </div>
@@ -166,7 +167,7 @@ export function BlogCard({
                 )
               )}
               {post.tags.length > 0 && <span className="text-zinc-600">·</span>}
-              <span>{post.createdAt}</span>
+              <span>{formatDateForDisplay(post.createdAt)}</span>
             </div>
           </div>
         </div>
@@ -230,7 +231,7 @@ export function BlogCard({
               )
             )}
             {post.tags.length > 0 && <span className="text-zinc-600">·</span>}
-            <span>{post.createdAt}</span>
+            <span>{formatDateForDisplay(post.createdAt)}</span>
           </div>
         </div>
       </div>
