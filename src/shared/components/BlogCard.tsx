@@ -50,7 +50,7 @@ export function BlogCard({
           className="relative z-10 flex flex-col flex-1 min-h-0 cursor-pointer"
           onClick={handleClick}
         >
-          <div className="relative w-full flex-1 min-h-[200px] overflow-hidden">
+          <div className="relative w-full flex-1 min-h-[200px] rounded-xl overflow-hidden">
             {post.firstView ? (
               <div
               className={`
