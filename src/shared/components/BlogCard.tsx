@@ -39,7 +39,7 @@ export function BlogCard({
 
   if (featured) {
     return (
-      <li className="relative group overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900/40 transition-colors group-hover:border-zinc-700/60 group-hover:bg-zinc-800/50 h-full flex flex-col">
+      <li className="relative group overflow-hidden border rounded-xl border-zinc-800/80 bg-zinc-900/40 transition-colors group-hover:border-zinc-700/60 group-hover:bg-zinc-800/50 h-full flex flex-col">
         <Link
           to={detailPath}
           params={{ slug: post.slug }}
@@ -52,16 +52,22 @@ export function BlogCard({
         >
           <div className="relative w-full flex-1 min-h-[200px] overflow-hidden">
             {post.firstView ? (
-              <>
-                <img
-                  src={getBlogImageSrc(post.firstView)}
-                  alt=""
-                  fetchPriority="high"
-                  decoding="async"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+              <div
+              className={`
+                w-full h-full will-change-transform transition-transform duration-300
+                group-hover:scale-105 relative
+                ${post.firstView ? '' : 'bg-gradient-to-br from-cyan-900/40 via-zinc-800/60 to-violet-900/40'}
+              `}
+              style={post.firstView ? {
+                backgroundImage: `url(${getBlogImageSrc(post.firstView)})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              } : undefined}
+            >
+              {post.firstView && (
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/30 to-transparent" />
-              </>
+              )}
+            </div>
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/40 via-zinc-800/60 to-violet-900/40" />
             )}
