@@ -65,7 +65,7 @@ export function BlogCard({
               } : undefined}
             >
               {post.firstView && (
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/30 to-transparent" />
+                <div className="absolute -inset-1 bg-gradient-to-t from-zinc-950/90 via-zinc-950/30 to-transparent" />
               )}
             </div>
             ) : (
