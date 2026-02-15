@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Sparkles, BookOpen, FileText, HelpCircle } from 'lucide-react'
+import { TECH_DEFAULT_SEARCH } from '~/shared/types/techSearch'
 
 export const Route = createFileRoute('/about')({
   component: AboutPage,
@@ -56,6 +57,7 @@ function AboutPage() {
 
             <Link
               to="/tech"
+              search={TECH_DEFAULT_SEARCH}
               className="group relative overflow-hidden rounded-2xl border border-zinc-700/60 bg-gradient-to-b from-zinc-800/80 to-zinc-900/80 p-6 transition-all duration-300 hover:border-cyan-500/40 hover:shadow-[0_0_30px_-10px_rgba(34,211,238,0.3)]"
             >
               <div className="absolute -right-4 -top-4 text-cyan-500/5 transition-transform duration-300 group-hover:scale-110">
