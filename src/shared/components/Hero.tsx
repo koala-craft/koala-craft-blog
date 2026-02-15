@@ -31,6 +31,7 @@ export function Hero({
           loop
           muted
           playsInline
+          preload="metadata"
           className="absolute inset-0 h-full w-full object-cover object-[center_75%]"
           aria-hidden
         >

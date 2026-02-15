@@ -30,6 +30,8 @@ function BlogDetail() {
           <img
             src={getBlogImageSrc(post.firstView)}
             alt=""
+            fetchPriority="high"
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent" />

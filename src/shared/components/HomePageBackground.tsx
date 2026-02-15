@@ -1,13 +1,8 @@
-import { useRouterState } from '@tanstack/react-router'
-
 /**
- * トップページ（/）のみで表示する背景アクセント
- * body 直下でレンダリングするため確実に表示される
+ * トップページ（/）の背景アクセント
+ * index ルートでのみレンダリングされる
  */
 export function HomePageBackground() {
-  const { location } = useRouterState()
-  if (location.pathname !== '/') return null
-
   return (
     <div
       className="pointer-events-none fixed inset-0 z-0"

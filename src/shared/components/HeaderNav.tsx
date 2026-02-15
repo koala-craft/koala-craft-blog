@@ -47,9 +47,11 @@ export function HeaderNav() {
         <img
           src="/fav_rev/favicon-32x32.png"
           alt=""
-          className="w-8 h-8"
           width={32}
           height={32}
+          loading="eager"
+          decoding="async"
+          className="w-8 h-8"
         />
       </Link>
       <div className="flex gap-6 items-center flex-1 justify-end">

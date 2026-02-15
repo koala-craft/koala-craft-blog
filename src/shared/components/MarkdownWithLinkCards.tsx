@@ -71,6 +71,8 @@ export function MarkdownWithLinkCards({
         <img
           src={getBlogImageSrc(src)}
           alt={alt ?? ''}
+          loading="lazy"
+          decoding="async"
           {...props}
         />
       ) : null,

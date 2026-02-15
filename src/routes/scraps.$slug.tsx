@@ -111,6 +111,10 @@ function GitHubAvatar({ username }: { username: string }) {
     <img
       src={`https://avatars.githubusercontent.com/${encodeURIComponent(username)}?s=64`}
       alt=""
+      width={32}
+      height={32}
+      loading="lazy"
+      decoding="async"
       className="w-8 h-8 rounded-full flex-shrink-0 bg-zinc-700/60"
       onError={() => setFailed(true)}
     />

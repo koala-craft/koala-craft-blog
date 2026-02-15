@@ -48,6 +48,8 @@ export function WorkCard({ item }: WorkCardProps) {
               <img
                 src={getBlogImageSrc(item.thumbnail)}
                 alt=""
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 via-transparent to-transparent" />

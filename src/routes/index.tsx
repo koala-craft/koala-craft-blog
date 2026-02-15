@@ -10,6 +10,7 @@ import { parseScrapTitle } from '~/features/scraps/parseScrapTitle'
 import { BlogCard } from '~/shared/components/BlogCard'
 import { ContactCTA } from '~/shared/components/ContactCTA'
 import { Hero } from '~/shared/components/Hero'
+import { HomePageBackground } from '~/shared/components/HomePageBackground'
 import { TopCard } from '~/shared/components/TopCard'
 
 const DEFAULT_TITLE = '気楽に誠実に'
@@ -43,6 +44,7 @@ function HomePage() {
 
   return (
     <div className="min-h-screen">
+      <HomePageBackground />
       <Hero title={siteTitle} subtitle={siteSubtitle} />
 
       <div id="main-content" className="max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 scroll-mt-16">

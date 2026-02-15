@@ -37,6 +37,10 @@ function AuthorPage() {
             <img
               src={getBlogImageSrc(authorIcon)}
               alt=""
+              width={96}
+              height={96}
+              loading="eager"
+              decoding="async"
               className="w-24 h-24 rounded-full object-cover border-2 border-zinc-700 shrink-0"
             />
           )}

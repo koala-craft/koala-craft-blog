@@ -4,10 +4,8 @@ import {
   Scripts,
   createRootRoute,
 } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import * as React from 'react'
 import { AuthProvider } from '~/features/admin/AuthProvider'
-import { HomePageBackground } from '~/shared/components/HomePageBackground'
 import { DefaultCatchBoundary } from '~/shared/components/DefaultCatchBoundary'
 import { HeaderNav } from '~/shared/components/HeaderNav'
 import { Footer } from '~/shared/components/Footer'
@@ -36,6 +34,8 @@ export const Route = createRootRoute({
       },
     ],
     links: [
+      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
       {
         rel: 'stylesheet',
         href: 'https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap',
@@ -55,7 +55,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="relative text-zinc-100 min-h-screen bg-zinc-950 flex flex-col">
-        <HomePageBackground />
         <AuthProvider>
           <header className="relative z-10 border-b border-zinc-800">
             <HeaderNav />
@@ -63,7 +62,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <main className="relative z-10 flex-1">{children}</main>
           <Footer />
         </AuthProvider>
-        <TanStackRouterDevtools position="bottom-right" />
         <Scripts />
       </body>
     </html>

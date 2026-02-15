@@ -1,6 +1,5 @@
 import { Link, Outlet, createFileRoute, useLocation } from '@tanstack/react-router'
 import { useAuth } from '~/features/admin/useAuth'
-import { AuthDebugInfo } from '~/features/admin/AuthDebugInfo'
 import { ForbiddenMessage } from '~/features/admin/ForbiddenMessage'
 import { LoginForm, LoginFormPlaceholder } from '~/features/admin/LoginForm'
 
@@ -110,7 +109,6 @@ function AdminLayout() {
         </button>
       </nav>
       <Outlet />
-      <AuthDebugInfo className={isEditor ? 'fixed bottom-4 right-4 z-10 max-w-xs' : 'mt-6'} />
     </div>
   )
 }

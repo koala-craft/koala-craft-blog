@@ -55,6 +55,8 @@ export function BlogCard({
                 <img
                   src={getBlogImageSrc(post.firstView)}
                   alt=""
+                  fetchPriority="high"
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/30 to-transparent" />
@@ -126,6 +128,8 @@ export function BlogCard({
                 <img
                   src={getBlogImageSrc(post.firstView)}
                   alt=""
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent" />
@@ -189,6 +193,8 @@ export function BlogCard({
               <img
                 src={getBlogImageSrc(post.firstView)}
                 alt=""
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 via-transparent to-transparent" />
