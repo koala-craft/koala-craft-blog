@@ -6,6 +6,7 @@
 
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { getOrSet } from './cache'
 import {
   parseRepoUrl,
   fetchFileContent,
@@ -108,31 +109,33 @@ export function writeLocalConfig(config: AppConfig): void {
  * 2. ローカルがなければ env / config の github_repo_url から GitHub を取得
  */
 export async function getConfigForServer(): Promise<AppConfig> {
-  const local = readLocalConfig()
-  if (local) return local
+  return getOrSet('config', async () => {
+    const local = readLocalConfig()
+    if (local) return local
 
-  const envUrl = getRepoUrlFromEnv()
-  const urlsToTry: string[] = []
-  if (envUrl) urlsToTry.push(envUrl)
+    const envUrl = getRepoUrlFromEnv()
+    const urlsToTry: string[] = []
+    if (envUrl) urlsToTry.push(envUrl)
 
-  for (const repoUrl of urlsToTry) {
-    const parsed = parseRepoUrl(repoUrl)
-    if (!parsed) continue
-    for (const configPath of CONFIG_PATHS) {
-      try {
-        const content = await fetchFileContent(
-          parsed.owner,
-          parsed.repo,
-          configPath
-        )
-        if (content) return parseConfigJson(content)
-      } catch {
-        continue
+    for (const repoUrl of urlsToTry) {
+      const parsed = parseRepoUrl(repoUrl)
+      if (!parsed) continue
+      for (const configPath of CONFIG_PATHS) {
+        try {
+          const content = await fetchFileContent(
+            parsed.owner,
+            parsed.repo,
+            configPath
+          )
+          if (content) return parseConfigJson(content)
+        } catch {
+          continue
+        }
       }
     }
-  }
 
-  return { ...DEFAULT_CONFIG }
+    return { ...DEFAULT_CONFIG }
+  })
 }
 
 /**

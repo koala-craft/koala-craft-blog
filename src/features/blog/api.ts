@@ -3,6 +3,7 @@ import * as path from 'node:path'
 import { createServerFn } from '@tanstack/react-start'
 import { validateSlug } from '~/shared/lib/slug'
 import { getGithubRepoUrlForServer } from '~/shared/lib/contentSource'
+import { getOrSet } from '~/shared/lib/cache'
 import { parseRepoUrl, fetchDirectory, fetchRawFile, fetchFileContent } from '~/shared/lib/github'
 import type { BlogPost } from './types'
 
@@ -113,21 +114,23 @@ function fetchBlogPostsFromLocal(includePrivate = false): BlogPost[] {
 }
 
 export const getBlogPosts = createServerFn({ method: 'GET' }).handler(async (): Promise<BlogPost[]> => {
-  try {
-    const githubUrl = await getGithubRepoUrlForServer()
-    const parsed = githubUrl ? parseRepoUrl(githubUrl) : null
+  return getOrSet('blog', async () => {
+    try {
+      const githubUrl = await getGithubRepoUrlForServer()
+      const parsed = githubUrl ? parseRepoUrl(githubUrl) : null
 
-    if (parsed) {
-      try {
-        return await fetchBlogPostsFromGitHub(parsed.owner, parsed.repo, false)
-      } catch {
-        // fallback
+      if (parsed) {
+        try {
+          return await fetchBlogPostsFromGitHub(parsed.owner, parsed.repo, false)
+        } catch {
+          // fallback
+        }
       }
+    } catch {
+      // fallback
     }
-  } catch {
-    // fallback
-  }
-  return fetchBlogPostsFromLocal(false)
+    return fetchBlogPostsFromLocal(false)
+  })
 })
 
 export const getAdminBlogPosts = createServerFn({ method: 'GET' }).handler(

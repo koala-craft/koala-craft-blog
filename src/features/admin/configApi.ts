@@ -6,6 +6,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import type { AppConfig } from '~/shared/lib/config'
 import { writeLocalConfig } from '~/shared/lib/config'
+import { invalidateContent } from '~/shared/lib/cache'
 import { getSupabase } from '~/shared/lib/supabase'
 import {
   parseRepoUrl,
@@ -108,6 +109,7 @@ export const setConfig = createServerFn({ method: 'POST' })
 
       if (result.success) {
         writeLocalConfig(config)
+        invalidateContent()
         return result
       }
 
@@ -185,6 +187,7 @@ export const uploadAuthorIcon = createServerFn({ method: 'POST' })
 
       if (!result.success) return { success: false, error: result.error ?? 'アップロードに失敗しました' }
 
+      invalidateContent()
       const rawUrl = `https://raw.githubusercontent.com/${parsed.owner}/${parsed.repo}/main/${path}`
       return { success: true, url: rawUrl }
     }

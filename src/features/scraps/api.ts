@@ -3,6 +3,7 @@ import * as path from 'node:path'
 import { createServerFn } from '@tanstack/react-start'
 import { validateSlug } from '~/shared/lib/slug'
 import { getGithubRepoUrlForServer } from '~/shared/lib/contentSource'
+import { getOrSet } from '~/shared/lib/cache'
 import { parseRepoUrl, fetchDirectory, fetchRawFile, fetchFileContent } from '~/shared/lib/github'
 import type { Scrap, ScrapWithSlug } from './types'
 
@@ -56,21 +57,23 @@ function fetchScrapsFromLocal(): ScrapWithSlug[] {
 }
 
 export const getScraps = createServerFn({ method: 'GET' }).handler(async (): Promise<ScrapWithSlug[]> => {
-  try {
-    const githubUrl = await getGithubRepoUrlForServer()
-    const parsed = githubUrl ? parseRepoUrl(githubUrl) : null
+  return getOrSet('scraps', async () => {
+    try {
+      const githubUrl = await getGithubRepoUrlForServer()
+      const parsed = githubUrl ? parseRepoUrl(githubUrl) : null
 
-    if (parsed) {
-      try {
-        return await fetchScrapsFromGitHub(parsed.owner, parsed.repo)
-      } catch {
-        // GitHub 取得失敗時はフォールバック
+      if (parsed) {
+        try {
+          return await fetchScrapsFromGitHub(parsed.owner, parsed.repo)
+        } catch {
+          // GitHub 取得失敗時はフォールバック
+        }
       }
+    } catch {
+      // site_config 取得失敗時もフォールバック
     }
-  } catch {
-    // site_config 取得失敗時もフォールバック
-  }
-  return fetchScrapsFromLocal()
+    return fetchScrapsFromLocal()
+  })
 })
 
 export const getScrap = createServerFn({ method: 'GET' })

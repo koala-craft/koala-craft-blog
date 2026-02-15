@@ -16,6 +16,7 @@ import {
   fetchRawFileBinary,
 } from '~/shared/lib/github'
 import { validateSlug } from '~/shared/lib/slug'
+import { invalidateContent } from '~/shared/lib/cache'
 import { saveTempImage, clearTempAssets, readTempImage } from '~/shared/lib/blogTempAssets'
 import type { BlogPost } from './types'
 
@@ -132,7 +133,7 @@ export const createBlogPost = createServerFn({ method: 'POST' })
     const content = buildMarkdownContent(post)
     const path = `${BLOG_DIR}/${data.slug}.md`
 
-    return updateFileOnGitHub(
+    const result = await updateFileOnGitHub(
       parsed.owner,
       parsed.repo,
       path,
@@ -141,6 +142,8 @@ export const createBlogPost = createServerFn({ method: 'POST' })
       token,
       undefined
     )
+    if (result.success) invalidateContent()
+    return result
   })
 
 export type UpdateBlogPostInput = {
@@ -353,6 +356,7 @@ async function updateBlogPostHandler(data: UpdateBlogPostInput): Promise<{ succe
       }
     }
 
+    invalidateContent()
     return { success: true }
   }
 
@@ -651,7 +655,7 @@ export const deleteBlogPost = createServerFn({ method: 'POST' })
     const sha = await getFileSha(parsed.owner, parsed.repo, path, token)
     if (!sha) return { success: false, error: '記事が見つかりません' }
 
-    return deleteFileOnGitHub(
+    const result = await deleteFileOnGitHub(
       parsed.owner,
       parsed.repo,
       path,
@@ -659,4 +663,6 @@ export const deleteBlogPost = createServerFn({ method: 'POST' })
       token,
       sha
     )
+    if (result.success) invalidateContent()
+    return result
   })
