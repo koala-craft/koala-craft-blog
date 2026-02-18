@@ -88,27 +88,6 @@ koala-craft-blog/
 └── vercel.json          # セキュリティヘッダー等
 ```
 
-## ルーティング
-
-| パス | 説明 |
-|------|------|
-| / | トップ（ブログ＋技術記事＋スクラップ） |
-| /blog | オリジナルブログ一覧 |
-| /blog/:slug | ブログ記事詳細 |
-| /tech | 技術コンテンツ（記事＋スクラップのタブ表示） |
-| /articles | 技術記事（Zenn）一覧 |
-| /articles/:slug | 技術記事詳細 |
-| /scraps | スクラップ一覧 |
-| /scraps/:slug | スクラップ詳細 |
-| /work | 作品一覧 |
-| /work/:id | 作品詳細 |
-| /author | 作者ページ（Work タブ表示） |
-| /about | このサイトについて |
-| /contact | お問い合わせフォーム |
-| /admin | 管理ダッシュボード |
-| /admin/blog | ブログ管理（CRUD） |
-| /admin/works | 作品管理 |
-| /admin/settings | サイト設定 |
 
 ## ドキュメント
 
