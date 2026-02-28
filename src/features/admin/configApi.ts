@@ -14,8 +14,7 @@ import {
   getFileSha,
   updateFileOnGitHub,
 } from '~/shared/lib/github'
-
-const CONFIG_PATH = '.obsidian-log/config.json'
+import { getConfigPathForRepo } from '~/shared/lib/config'
 
 export const getConfig = createServerFn({ method: 'GET' }).handler(
   async (): Promise<AppConfig> => {
@@ -28,7 +27,7 @@ export type SetConfigInput = {
   accessToken: string
   providerToken?: string
   github_repo_url: string
-  zenn_username: string
+  tech_username: string
   author_name?: string
   admins: string[]
   site_title?: string
@@ -66,7 +65,7 @@ export const setConfig = createServerFn({ method: 'POST' })
     const current = await getConfigForServer()
     const config: AppConfig = {
       github_repo_url: repoUrl,
-      zenn_username: data.zenn_username.trim(),
+      tech_username: data.tech_username.trim(),
       author_name: typeof data.author_name === 'string' ? data.author_name.trim() : current.author_name ?? '',
       admins: Array.isArray(data.admins) ? data.admins.filter((a): a is string => typeof a === 'string') : [],
       site_title: typeof data.site_title === 'string' ? data.site_title.trim() : current.site_title ?? '',
@@ -77,13 +76,14 @@ export const setConfig = createServerFn({ method: 'POST' })
 
     const content = JSON.stringify(config, null, 2)
     const maxRetries = 3
+    const configPath = await getConfigPathForRepo(parsed.owner, parsed.repo, token)
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
-      const sha = await getFileSha(parsed.owner, parsed.repo, CONFIG_PATH, token)
+      const sha = await getFileSha(parsed.owner, parsed.repo, configPath, token)
       const result = await updateFileOnGitHub(
         parsed.owner,
         parsed.repo,
-        CONFIG_PATH,
+        configPath,
         content,
         'chore: update obsidian-log config',
         token,

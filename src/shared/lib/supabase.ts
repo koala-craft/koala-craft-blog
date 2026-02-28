@@ -23,3 +23,15 @@ export function getSupabase(): SupabaseClient | null {
   }
   return _supabase
 }
+
+/** サーバー用: 指定トークンで認証されたクライアント（RLS で auth.uid() が有効になる） */
+export function getSupabaseWithToken(accessToken: string): SupabaseClient | null {
+  if (!supabaseUrl || !supabaseAnonKey) return null
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  })
+}

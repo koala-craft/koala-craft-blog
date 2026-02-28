@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router'
 import { useAuth } from '~/features/admin/useAuth'
-import { TECH_DEFAULT_SEARCH } from '~/shared/types/techSearch'
 
 export function HeaderNav() {
   const { user } = useAuth()
@@ -32,7 +31,6 @@ export function HeaderNav() {
         </Link>
         <Link
           to="/tech"
-          search={TECH_DEFAULT_SEARCH}
           activeProps={{ className: 'font-bold text-cyan-400' }}
           className="hover:text-cyan-400 transition"
         >

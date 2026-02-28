@@ -17,7 +17,7 @@ export const Route = createRootRoute({
   loader: async () => {
     const config = await getConfig()
     return {
-      zennUsername: config.zenn_username?.trim() ?? '',
+      techUsername: config.tech_username?.trim() ?? '',
       authorName: config.author_name?.trim() ?? '',
       authorIcon: config.author_icon?.trim() ?? '',
       siteTitle: config.site_title?.trim() ?? '',

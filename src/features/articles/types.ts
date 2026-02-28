@@ -5,4 +5,6 @@ export interface Article {
   createdAt: string
   tags: string[]
   visibility: 'public' | 'private'
+  /** ヘッダー画像 URL。未設定時はグラデーション背景 */
+  firstView?: string
 }

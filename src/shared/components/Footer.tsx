@@ -1,6 +1,5 @@
 import { Link, useLoaderData } from '@tanstack/react-router'
 import type { RootLoaderData } from '~/shared/types/rootLoader'
-import { TECH_DEFAULT_SEARCH } from '~/shared/types/techSearch'
 
 export function Footer() {
   const rootData = useLoaderData({ from: '__root__' as const }) as RootLoaderData
@@ -31,7 +30,6 @@ export function Footer() {
             </Link>
             <Link
               to="/tech"
-              search={TECH_DEFAULT_SEARCH}
               className="text-sm text-zinc-500 hover:text-cyan-400 transition"
             >
               Tech

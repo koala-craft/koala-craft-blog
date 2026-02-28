@@ -47,7 +47,7 @@ export function MarkdownWithLinkCards({
   brSpacing,
   useNativeBr = false,
 }: MarkdownWithLinkCardsProps) {
-  if (!content.trim()) return null
+  if (!content || !String(content).trim()) return null
 
   const fixedContent = fixImageUrls(content)
   const lines = fixedContent.split('\n')

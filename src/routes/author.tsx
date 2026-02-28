@@ -10,8 +10,8 @@ export const Route = createFileRoute('/author')({
 })
 
 function AuthorPage() {
-  const { authorIcon, authorName, authorOneLiner, zennUsername, personalItems, professionalItems, sidejobItems } = Route.useLoaderData()
-  const displayName = authorName || zennUsername || 'Author'
+  const { authorIcon, authorName, authorOneLiner, techUsername, personalItems, professionalItems, sidejobItems } = Route.useLoaderData()
+  const displayName = authorName || techUsername || 'Author'
 
   return (
     <div className="max-w-[96rem] mx-auto px-4 py-8">
@@ -39,23 +39,15 @@ function AuthorPage() {
             {authorOneLiner}
           </p>
         )}
-        {zennUsername && (
+        {techUsername && (
           <div className="flex flex-wrap gap-4 pt-4">
             <a
-              href={`https://github.com/${zennUsername}`}
+              href={`https://github.com/${techUsername}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-cyan-400 hover:underline"
             >
               GitHub ↗
-            </a>
-            <a
-              href={`https://zenn.dev/${zennUsername}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-cyan-400 hover:underline"
-            >
-              Zenn ↗
             </a>
           </div>
         )}

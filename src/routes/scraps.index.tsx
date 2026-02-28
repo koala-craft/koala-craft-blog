@@ -1,16 +1,30 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect, useRef } from 'react'
 import { getScraps } from '~/features/scraps/api'
+import { ScrapComposer } from '~/features/scraps/ScrapComposer'
 import { parseScrapTitle } from '~/features/scraps/parseScrapTitle'
-import { scrapMatchesSearch, getScrapPreview } from '~/features/scraps/searchScrap'
+import { scrapMatchesSearch } from '~/features/scraps/searchScrap'
 import type { ScrapWithSlug } from '~/features/scraps/types'
-import { useSearchParams } from '~/shared/hooks/useSearchParams'
+import { ContentListRow } from '~/shared/components/ContentListRow'
+import { useAuth } from '~/features/admin/useAuth'
+import {
+  useSearchParams,
+  buildTagSearch,
+  toggleTagInFilter,
+} from '~/shared/hooks/useSearchParams'
 
 const SEARCH_DEBOUNCE_MS = 300
 
 export const Route = createFileRoute('/scraps/')({
   component: ScrapsIndex,
-  loader: () => getScraps(),
+  validateSearch: (search: Record<string, unknown>) => ({
+    tag: typeof search.tag === 'string' ? search.tag : undefined,
+    q: typeof search.q === 'string' ? search.q : undefined,
+    _refresh: typeof search._refresh === 'number' ? search._refresh : undefined,
+  }),
+  loaderDeps: ({ search }) => ({ bypassCache: !!search._refresh }),
+  loader: ({ deps }) =>
+    getScraps({ data: { bypassCache: deps?.bypassCache } }),
 })
 
 function groupByMonth(scraps: ScrapWithSlug[]): Map<string, ScrapWithSlug[]> {
@@ -37,10 +51,11 @@ function formatMonthLabel(key: string): string {
 
 function ScrapsIndex() {
   const scraps = Route.useLoaderData()
+  const { isAdmin } = useAuth()
   const navigate = useNavigate()
+  const routeSearch = Route.useSearch()
   const search = useSearchParams()
-  const filterTag =
-    typeof search?.tag === 'string' && search.tag.trim() ? search.tag.trim() : null
+  const filterTags = search.tags
   const searchQuery =
     typeof search?.q === 'string' && search.q.trim() ? search.q.trim() : null
 
@@ -52,23 +67,36 @@ function ScrapsIndex() {
     setSearchInput(searchQuery ?? '')
   }, [searchQuery])
 
+  // 作成後の _refresh を URL から削除
+  useEffect(() => {
+    if (!routeSearch?._refresh) return
+    navigate({
+      to: '/scraps',
+      search: {
+        ...buildTagSearch(filterTags),
+        q: searchQuery ?? undefined,
+      },
+      replace: true,
+    })
+  }, [routeSearch?._refresh, filterTags, searchQuery, navigate])
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const q = searchInput.trim() || undefined
       if (q === (searchQuery ?? '')) return
       navigateRef.current({
         to: '/scraps',
-        search: { tag: filterTag ?? undefined, q },
+        search: { ...buildTagSearch(filterTags), q },
       })
     }, SEARCH_DEBOUNCE_MS)
     return () => window.clearTimeout(timer)
-  }, [searchInput, filterTag, searchQuery])
+  }, [searchInput, filterTags, searchQuery])
 
   const effectiveQuery = searchInput.trim() || null
   const filteredScraps = scraps.filter((s) => {
-    if (filterTag) {
+    if (filterTags.length > 0) {
       const { tags } = parseScrapTitle(s.title)
-      if (!tags.includes(filterTag)) return false
+      if (!filterTags.some((t) => tags.includes(t))) return false
     }
     if (effectiveQuery && !scrapMatchesSearch(s, effectiveQuery)) return false
     return true
@@ -83,12 +111,14 @@ function ScrapsIndex() {
 
   const handleClearSearch = () => {
     setSearchInput('')
-    navigate({ to: '/scraps', search: { tag: filterTag ?? undefined } })
+    navigate({ to: '/scraps', search: buildTagSearch(filterTags) })
   }
 
   return (
     <div className="max-w-[96rem] mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">スクラップ一覧</h1>
+      <h1 className="text-3xl font-bold mb-8">Stream MEMO 一覧</h1>
+
+      {isAdmin && <ScrapComposer />}
 
       <div className="mb-6">
         <div className="relative flex gap-2">
@@ -98,7 +128,7 @@ function ScrapsIndex() {
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="タイトル・本文を検索..."
             className="flex-1 px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
-            aria-label="スクラップ検索"
+            aria-label="Stream MEMO 検索"
             autoComplete="off"
           />
           {searchInput && (
@@ -116,23 +146,27 @@ function ScrapsIndex() {
 
       {allTags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-6">
-          {allTags.map((t) => (
+          {allTags.map((t) => {
+            const toggled = toggleTagInFilter(filterTags, t)
+            return (
+              <Link
+                key={t}
+                to="/scraps"
+                search={{ ...buildTagSearch(toggled), q: searchQuery ?? undefined }}
+                className={`inline-block px-3 py-1 rounded-full text-sm ${
+                  filterTags.includes(t)
+                    ? 'bg-cyan-500/30 text-cyan-300 ring-1 ring-cyan-500/50'
+                    : 'bg-zinc-700/50 text-zinc-400 hover:bg-zinc-600/50'
+                }`}
+              >
+                {t}
+              </Link>
+            )
+          })}
+          {filterTags.length > 0 && (
             <Link
-              key={t}
               to="/scraps"
-              search={filterTag === t ? {} : { tag: t }}
-              className={`inline-block px-3 py-1 rounded-full text-sm ${
-                filterTag === t
-                  ? 'bg-cyan-500/30 text-cyan-300 ring-1 ring-cyan-500/50'
-                  : 'bg-zinc-700/50 text-zinc-400 hover:bg-zinc-600/50'
-              }`}
-            >
-              {t}
-            </Link>
-          ))}
-          {filterTag && (
-            <Link
-              to="/scraps"
+              search={{ q: searchQuery ?? undefined }}
               className="inline-block px-3 py-1 rounded-full text-sm text-zinc-500 hover:text-zinc-400"
             >
               ✕ フィルタ解除
@@ -144,10 +178,10 @@ function ScrapsIndex() {
       {filteredScraps.length === 0 ? (
         <p className="text-zinc-500">
           {effectiveQuery
-            ? `「${effectiveQuery}」に該当するスクラップがありません`
-            : filterTag
-              ? `タグ「${filterTag}」に該当するスクラップがありません`
-              : 'スクラップがありません'}
+            ? `「${effectiveQuery}」に該当する Stream MEMO がありません`
+            : filterTags.length > 0
+              ? `タグ「${filterTags.join('」「')}」に該当する Stream MEMO がありません`
+              : 'Stream MEMO がありません'}
         </p>
       ) : (
         <div className="space-y-8">
@@ -156,50 +190,38 @@ function ScrapsIndex() {
               <h2 className="text-lg font-semibold text-zinc-400 mb-4">
                 {formatMonthLabel(key)}
               </h2>
-              <ul className="space-y-4">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {grouped.get(key)!.map((s) => {
                   const { displayTitle, tags } = parseScrapTitle(s.title)
-                  const preview = getScrapPreview(s)
                   return (
-                    <li key={s.slug} className="relative group">
-                      <Link
-                        to="/scraps/$slug"
-                        params={{ slug: s.slug }}
-                        className="absolute inset-0 z-0 rounded-md cursor-pointer"
-                        aria-label={`スクラップ「${displayTitle || s.title}」を読む`}
-                      />
-                      <div className="relative z-10 rounded-md border border-zinc-800/80 bg-zinc-900/40 p-5 pointer-events-none transition-colors group-hover:border-zinc-700/60 group-hover:bg-zinc-800/50">
-                        <h3 className="text-lg font-semibold text-zinc-100 group-hover:text-cyan-400 transition-colors">
-                          {displayTitle || s.title}
-                        </h3>
-                        {preview && (
-                          <p className="mt-2 line-clamp-2 text-sm text-zinc-400">
-                            {preview}
-                          </p>
-                        )}
-                        {tags.length > 0 && (
-                          <div className="mt-3 flex flex-wrap gap-1.5 pointer-events-auto">
-                            {tags.map((t) => (
-                              <Link
-                                key={t}
-                                to="/scraps"
-                                search={{ tag: t }}
-                                className="text-xs px-2 py-0.5 rounded bg-zinc-700/60 text-zinc-400 hover:bg-zinc-600/60 hover:text-zinc-300"
-                              >
-                                {t}
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
-                          <span>{s.created_at}</span>
-                          <span>コメント {s.comments.length}件</span>
-                          {s.comments[0]?.author && (
-                            <span>by {s.comments[0].author}</span>
+                    <ContentListRow
+                      key={s.slug}
+                      to="/scraps/$slug"
+                      params={{ slug: s.slug }}
+                      title={displayTitle || s.title}
+                      date={s.created_at}
+                      tags={tags}
+                      tagLinkTo="/scraps"
+                      filterTags={filterTags}
+                      tagLinkSearch={{ q: searchQuery ?? undefined }}
+                      imageUrl={s.firstView}
+                      meta={
+                        <>
+                          {s.closed && (
+                            <>
+                              <span className="text-zinc-600">·</span>
+                              <span className="shrink-0 px-1.5 py-0.5 rounded text-xs font-medium bg-amber-900/50 text-amber-400 border border-amber-700/50">
+                                クローズ
+                              </span>
+                            </>
                           )}
-                        </div>
-                      </div>
-                    </li>
+                          <span className="text-zinc-600">·</span>
+                          <span>コメント {s.comments.length}件</span>
+                        </>
+                      }
+                      ariaLabel={`Stream「${displayTitle || s.title}」を読む`}
+                      variant="tall"
+                    />
                   )
                 })}
               </ul>

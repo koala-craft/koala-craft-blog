@@ -3,11 +3,19 @@ import * as path from 'node:path'
 import { createServerFn } from '@tanstack/react-start'
 import { validateSlug } from '~/shared/lib/slug'
 import { getGithubRepoUrlForServer } from '~/shared/lib/contentSource'
-import { getOrSet } from '~/shared/lib/cache'
+import { getOrSet, invalidate } from '~/shared/lib/cache'
 import { parseRepoUrl, fetchDirectory, fetchRawFile, fetchFileContent } from '~/shared/lib/github'
 import type { Scrap, ScrapWithSlug } from './types'
 
 const CONTENT_DIR = path.join(process.cwd(), 'content')
+
+function normalizeScrap(scrap: Scrap): Scrap {
+  return {
+    ...scrap,
+    closed: typeof scrap.closed === 'boolean' ? scrap.closed : false,
+    closed_reason: scrap.closed ? (scrap.closed_reason?.trim() || undefined) : undefined,
+  }
+}
 
 async function fetchScrapsFromGitHub(owner: string, repo: string): Promise<ScrapWithSlug[]> {
   const files = await fetchDirectory(owner, repo, 'scraps')
@@ -22,7 +30,7 @@ async function fetchScrapsFromGitHub(owner: string, repo: string): Promise<Scrap
     if (!content) continue
 
     try {
-      const scrap = JSON.parse(content) as Scrap
+      const scrap = normalizeScrap(JSON.parse(content) as Scrap)
       scraps.push({ ...scrap, slug })
     } catch {
       // invalid json, skip
@@ -46,7 +54,7 @@ function fetchScrapsFromLocal(): ScrapWithSlug[] {
 
     const content = fs.readFileSync(path.join(scrapsDir, file), 'utf-8')
     try {
-      const scrap = JSON.parse(content) as Scrap
+      const scrap = normalizeScrap(JSON.parse(content) as Scrap)
       scraps.push({ ...scrap, slug })
     } catch {
       // invalid json, skip
@@ -56,8 +64,11 @@ function fetchScrapsFromLocal(): ScrapWithSlug[] {
   return scraps.sort((a, b) => b.created_at.localeCompare(a.created_at))
 }
 
-export const getScraps = createServerFn({ method: 'GET' }).handler(async (): Promise<ScrapWithSlug[]> => {
-  return getOrSet('scraps', async () => {
+export const getScraps = createServerFn({ method: 'GET' })
+  .inputValidator((data: { bypassCache?: boolean }) => data ?? {})
+  .handler(async ({ data }): Promise<ScrapWithSlug[]> => {
+    if (data?.bypassCache) invalidate('scraps')
+    return getOrSet('scraps', async () => {
     try {
       const githubUrl = await getGithubRepoUrlForServer()
       const parsed = githubUrl ? parseRepoUrl(githubUrl) : null
@@ -94,7 +105,7 @@ export const getScrap = createServerFn({ method: 'GET' })
             `scraps/${slug}.json`
           )
           if (content) {
-            const scrap = JSON.parse(content) as Scrap
+            const scrap = normalizeScrap(JSON.parse(content) as Scrap)
             return { ...scrap, slug }
           }
         } catch {
@@ -109,7 +120,7 @@ export const getScrap = createServerFn({ method: 'GET' })
     if (!fs.existsSync(filePath)) return null
     const content = fs.readFileSync(filePath, 'utf-8')
     try {
-      const scrap = JSON.parse(content) as Scrap
+      const scrap = normalizeScrap(JSON.parse(content) as Scrap)
       return { ...scrap, slug }
     } catch {
       return null

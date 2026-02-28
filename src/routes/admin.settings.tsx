@@ -4,7 +4,7 @@ import type { RootLoaderData } from '~/shared/types/rootLoader'
 import {
   setSiteConfigAll,
   validateGithubRepoUrl,
-  validateZennUsername,
+  validateTechUsername,
   validateAuthorName,
   validateSiteHeader,
 } from '~/features/admin/siteConfig'
@@ -20,7 +20,7 @@ function AdminSettings() {
   const router = useRouter()
   const rootData = useLoaderData({ from: '__root__' as const }) as RootLoaderData
   const [url, setUrl] = useState(rootData.githubRepoUrl)
-  const [zennUsername, setZennUsernameState] = useState(rootData.zennUsername)
+  const [techUsername, setTechUsernameState] = useState(rootData.techUsername)
   const [authorName, setAuthorNameState] = useState(rootData.authorName)
   const [siteTitle, setSiteTitle] = useState(rootData.siteTitle)
   const [siteSubtitle, setSiteSubtitle] = useState(rootData.siteSubtitle)
@@ -108,9 +108,9 @@ function AdminSettings() {
       setMessage({ type: 'error', text: urlValidation.error ?? '入力が不正です' })
       return
     }
-    const zennValidation = validateZennUsername(zennUsername)
-    if (!zennValidation.valid) {
-      setMessage({ type: 'error', text: zennValidation.error ?? 'Zenn ユーザー名が不正です' })
+    const techValidation = validateTechUsername(techUsername)
+    if (!techValidation.valid) {
+      setMessage({ type: 'error', text: techValidation.error ?? 'Tech ユーザー名が不正です' })
       return
     }
     const authorNameValidation = validateAuthorName(authorName)
@@ -126,7 +126,7 @@ function AdminSettings() {
     setSaving(true)
     const result = await setSiteConfigAll({
       github_repo_url: url,
-      zenn_username: zennUsername,
+      tech_username: techUsername,
       author_name: authorName,
       site_title: siteTitle,
       site_subtitle: siteSubtitle,
@@ -234,25 +234,25 @@ function AdminSettings() {
             disabled={saving}
           />
           <p className="text-xs text-zinc-500 mt-1">
-            記事・スクラップの取得元。空の場合はローカル content/ を参照します。
+            記事・Stream の取得元。空の場合はローカル content/ を参照します。
           </p>
         </div>
 
         <div>
-          <label htmlFor="zenn_username" className="block text-sm font-medium text-zinc-300 mb-2">
-            Zenn ユーザー名
+          <label htmlFor="tech_username" className="block text-sm font-medium text-zinc-300 mb-2">
+            GitHub ユーザー名
           </label>
           <input
-            id="zenn_username"
+            id="tech_username"
             type="text"
-            value={zennUsername}
-            onChange={(e) => setZennUsernameState(e.target.value)}
+            value={techUsername}
+            onChange={(e) => setTechUsernameState(e.target.value)}
             placeholder="username"
             className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
             disabled={saving}
           />
           <p className="text-xs text-zinc-500 mt-1">
-            記事・スクラップ詳細ページの「Zenn で見る」リンク生成に使用。空の場合は非表示。
+            Author ページの GitHub リンク生成に使用。空の場合は非表示。
           </p>
         </div>
 
@@ -270,7 +270,7 @@ function AdminSettings() {
             disabled={saving}
           />
           <p className="text-xs text-zinc-500 mt-1">
-            Author ページ・記事フッターなどで表示する作者名。Zenn ユーザー名とは別に管理します。
+            Author ページ・記事フッターなどで表示する作者名。GitHub ユーザー名とは別に管理します。
           </p>
         </div>
 

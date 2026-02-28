@@ -19,10 +19,14 @@ import { getGithubRepoUrlForServer } from '~/shared/lib/contentSource'
 const RAW_PREFIX = 'https://raw.githubusercontent.com/'
 const CONTENT_DIR = path.join(process.cwd(), 'content')
 const BLOG_ASSETS_PREFIX = 'blog/assets/'
+const ARTICLES_ASSETS_PREFIX = 'articles/assets/'
+const SCRAPS_ASSETS_PREFIX = 'scraps/assets/'
 const AUTHOR_ICON_PREFIX = '.obsidian-log/author-icon'
 const WORKS_PREFIX = '.obsidian-log/works/'
 
-/** owner/repo が一致し、かつ blog/assets/、.obsidian-log/author-icon、.obsidian-log/works/ 配下の画像のみ許可 */
+const ASSET_PREFIXES = [BLOG_ASSETS_PREFIX, ARTICLES_ASSETS_PREFIX, SCRAPS_ASSETS_PREFIX, AUTHOR_ICON_PREFIX, WORKS_PREFIX]
+
+/** owner/repo が一致し、かつ許可されたパス配下の画像のみ許可 */
 function isAllowedUrl(url: string, allowedOwner: string, allowedRepo: string): boolean {
   if (!url.startsWith(RAW_PREFIX)) return false
   const pathStr = url.slice(RAW_PREFIX.length)
@@ -32,10 +36,12 @@ function isAllowedUrl(url: string, allowedOwner: string, allowedRepo: string): b
   const filePath = rest.join('/')
   if (filePath.includes('..')) return false
   const allowedExt = /\.(png|jpg|jpeg|gif|webp)$/i
-  const isBlogAsset = owner === allowedOwner && repo === allowedRepo && filePath.startsWith(BLOG_ASSETS_PREFIX)
-  const isAuthorIcon = owner === allowedOwner && repo === allowedRepo && filePath.startsWith(AUTHOR_ICON_PREFIX)
-  const isWorkThumbnail = owner === allowedOwner && repo === allowedRepo && filePath.startsWith(WORKS_PREFIX)
-  return (isBlogAsset || isAuthorIcon || isWorkThumbnail) && allowedExt.test(filePath)
+  const isAllowed =
+    owner === allowedOwner &&
+    repo === allowedRepo &&
+    ASSET_PREFIXES.some((p) => filePath.startsWith(p)) &&
+    allowedExt.test(filePath)
+  return isAllowed
 }
 
 /** raw URL から content 内の相対パスを取得 */
@@ -46,26 +52,21 @@ function getLocalPathFromRawUrl(rawUrl: string): string | null {
   if (parts.length < 4) return null
   const [, , , ...rest] = parts
   const filePath = rest.join('/')
-  if (
-    (!filePath.startsWith(BLOG_ASSETS_PREFIX) &&
-      !filePath.startsWith(AUTHOR_ICON_PREFIX) &&
-      !filePath.startsWith(WORKS_PREFIX)) ||
-    filePath.includes('..')
-  )
-    return null
+  if (!ASSET_PREFIXES.some((p) => filePath.startsWith(p)) || filePath.includes('..')) return null
   return filePath
 }
 
-/** path パラメータが blog/assets/、.obsidian-log/author-icon、.obsidian-log/works/ 配下の有効な画像パスか検証 */
+/** path パラメータが許可されたパス配下の有効な画像パスか検証 */
 function isValidAssetPath(p: string): boolean {
   const normalized = p.replace(/^\/+/, '').replace(/\\/g, '/')
   if (normalized.includes('..')) return false
-  const isBlogAsset = normalized.startsWith(BLOG_ASSETS_PREFIX)
-  const isAuthorIcon =
-    normalized.startsWith(AUTHOR_ICON_PREFIX) && /author-icon\.(png|jpg|jpeg|gif|webp)$/i.test(normalized)
-  const isWorkThumbnail =
-    normalized.startsWith(WORKS_PREFIX) && /\/thumbnail\.(png|jpg|jpeg|gif|webp)$/i.test(normalized)
-  return (isBlogAsset || isAuthorIcon || isWorkThumbnail) && /\.(png|jpg|jpeg|gif|webp)$/i.test(normalized)
+  const hasValidPrefix =
+    normalized.startsWith(BLOG_ASSETS_PREFIX) ||
+    normalized.startsWith(ARTICLES_ASSETS_PREFIX) ||
+    normalized.startsWith(SCRAPS_ASSETS_PREFIX) ||
+    (normalized.startsWith(AUTHOR_ICON_PREFIX) && /author-icon\.(png|jpg|jpeg|gif|webp)$/i.test(normalized)) ||
+    (normalized.startsWith(WORKS_PREFIX) && /\/thumbnail\.(png|jpg|jpeg|gif|webp)$/i.test(normalized))
+  return hasValidPrefix && /\.(png|jpg|jpeg|gif|webp)$/i.test(normalized)
 }
 
 function getContentType(ext: string): string {

@@ -11,12 +11,13 @@ import {
   parseRepoUrl,
   fetchFileContent,
   isValidGithubRepoUrl,
+  getFileSha,
 } from './github'
 
 export interface AppConfig {
   github_repo_url: string
-  zenn_username: string
-  /** サイト上で表示する作者名（Zenn ユーザー名とは別） */
+  tech_username: string
+  /** サイト上で表示する作者名（Tech ユーザー名とは別） */
   author_name?: string
   admins: string[]
   /** トップページの h1 */
@@ -46,7 +47,7 @@ function getLocalConfigPath(): string {
 
 const DEFAULT_CONFIG: AppConfig = {
   github_repo_url: '',
-  zenn_username: '',
+  tech_username: '',
   admins: [],
 }
 
@@ -61,7 +62,7 @@ function parseConfigJson(raw: string): AppConfig {
     const parsed = JSON.parse(raw) as Partial<AppConfig>
     return {
       github_repo_url: typeof parsed.github_repo_url === 'string' ? parsed.github_repo_url : '',
-      zenn_username: typeof parsed.zenn_username === 'string' ? parsed.zenn_username : '',
+      tech_username: typeof parsed.tech_username === 'string' ? parsed.tech_username : '',
       author_name: typeof parsed.author_name === 'string' ? parsed.author_name.trim() : '',
       admins: Array.isArray(parsed.admins)
         ? parsed.admins.filter((a): a is string => typeof a === 'string')
@@ -109,33 +110,51 @@ export function writeLocalConfig(config: AppConfig): void {
  * 2. ローカルがなければ env / config の github_repo_url から GitHub を取得
  */
 export async function getConfigForServer(): Promise<AppConfig> {
-  return getOrSet('config', async () => {
-    const local = readLocalConfig()
-    if (local) return local
+  return getOrSet('config', async () => fetchConfigInternal())
+}
 
-    const envUrl = getRepoUrlFromEnv()
-    const urlsToTry: string[] = []
-    if (envUrl) urlsToTry.push(envUrl)
+/**
+ * サーバー用: GitHub 上の config.json のパスを取得
+ * 読み込み元と同じパスへ更新するために使用
+ */
+export async function getConfigPathForRepo(
+  owner: string,
+  repo: string,
+  token: string
+): Promise<string> {
+  for (const configPath of CONFIG_PATHS) {
+    const sha = await getFileSha(owner, repo, configPath, token)
+    if (sha) return configPath
+  }
+  return CONFIG_PATHS[0]
+}
 
-    for (const repoUrl of urlsToTry) {
-      const parsed = parseRepoUrl(repoUrl)
-      if (!parsed) continue
-      for (const configPath of CONFIG_PATHS) {
-        try {
-          const content = await fetchFileContent(
-            parsed.owner,
-            parsed.repo,
-            configPath
-          )
-          if (content) return parseConfigJson(content)
-        } catch {
-          continue
-        }
+async function fetchConfigInternal(): Promise<AppConfig> {
+  const local = readLocalConfig()
+  if (local) return local
+
+  const envUrl = getRepoUrlFromEnv()
+  const urlsToTry: string[] = []
+  if (envUrl) urlsToTry.push(envUrl)
+
+  for (const repoUrl of urlsToTry) {
+    const parsed = parseRepoUrl(repoUrl)
+    if (!parsed) continue
+    for (const configPath of CONFIG_PATHS) {
+      try {
+        const content = await fetchFileContent(
+          parsed.owner,
+          parsed.repo,
+          configPath
+        )
+        if (content) return parseConfigJson(content)
+      } catch {
+        continue
       }
     }
+  }
 
-    return { ...DEFAULT_CONFIG }
-  })
+  return { ...DEFAULT_CONFIG }
 }
 
 /**
@@ -151,11 +170,11 @@ export async function getGithubRepoUrlForServer(): Promise<string> {
 }
 
 /**
- * サーバー用: Zenn ユーザー名を取得
+ * サーバー用: Tech ユーザー名を取得
  */
-export async function getZennUsernameForServer(): Promise<string> {
+export async function getTechUsernameForServer(): Promise<string> {
   const config = await getConfigForServer()
-  return config.zenn_username.trim()
+  return config.tech_username.trim()
 }
 
 /**

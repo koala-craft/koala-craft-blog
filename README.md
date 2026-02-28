@@ -41,8 +41,9 @@ Copy-Item .env.example .env
 
 1. [Supabase](https://supabase.com) でプロジェクトを作成
 2. `supabase/migrations/001_initial.sql` を SQL Editor で実行
-3. Authentication → Providers で GitHub OAuth を有効化
-4. 初回管理者登録は [運用手順書](./docs/運用手順書.md) を参照
+3. `supabase/migrations/003_comments.sql` を SQL Editor で実行（コメント機能用）
+4. Authentication → Providers で GitHub OAuth を有効化
+5. 初回管理者登録は [運用手順書](./docs/運用手順書.md) を参照
 
 ### 4. 開発サーバー起動
 

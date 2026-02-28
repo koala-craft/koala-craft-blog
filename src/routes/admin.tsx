@@ -72,8 +72,10 @@ function AdminLayout() {
     '管理者'
 
   const isBlogEditor = /^\/admin\/blog\/(new|[^/]+)$/.test(pathname)
+  const isArticleEditor = /^\/admin\/articles\/(new|[^/]+)$/.test(pathname)
+  const isScrapEditor = /^\/admin\/scraps\/(new|[^/]+)$/.test(pathname)
   const isWorkEditor = /^\/admin\/works\/(new|[^/]+)$/.test(pathname)
-  const isEditor = isBlogEditor || isWorkEditor
+  const isEditor = isBlogEditor || isArticleEditor || isScrapEditor || isWorkEditor
 
   return (
     <div
@@ -89,6 +91,16 @@ function AdminLayout() {
         </Link>
         <Link to="/admin/blog" className="text-cyan-400 hover:underline">
           ブログ
+        </Link>
+        <Link to="/admin/articles" className="text-cyan-400 hover:underline">
+          記事
+        </Link>
+        <Link
+          to="/admin/scraps"
+          search={{ _refresh: undefined }}
+          className="text-cyan-400 hover:underline"
+        >
+          Stream
         </Link>
         <Link to="/admin/settings" className="text-cyan-400 hover:underline">
           サイト設定

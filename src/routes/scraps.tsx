@@ -22,7 +22,7 @@ function ScrapsLayout() {
           to="/scraps"
           className={isDetail ? 'hover:text-cyan-400 transition' : 'text-cyan-400 font-medium'}
         >
-          スクラップ
+          Stream MEMO
         </Link>
       </nav>
       <Outlet />

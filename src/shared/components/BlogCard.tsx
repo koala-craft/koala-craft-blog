@@ -1,6 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router'
 import { getBlogImageSrc } from '~/shared/lib/blogImageUrl'
 import { formatDateForDisplay } from '~/shared/lib/formatDate'
+import { buildTagSearch, toggleTagInFilter } from '~/shared/hooks/useSearchParams'
 import type { BlogPost } from '~/features/blog/types'
 
 type CompactVariant = 'default' | 'wide' | 'square' | 'tall'
@@ -13,6 +14,10 @@ type BlogCardProps = {
   compact?: boolean | CompactVariant
   /** 管理画面用：編集ページへリンクし、非公開バッジを表示 */
   adminMode?: boolean
+  /** 一覧ページ用：現在のタグフィルタ。指定時はタグクリックでトグル */
+  filterTags?: string[]
+  /** 一覧ページ用：タグリンクの search に含める追加パラメータ（q など） */
+  tagLinkSearch?: Record<string, string | undefined>
 }
 
 const COMPACT_ASPECT: Record<CompactVariant, string> = {
@@ -22,11 +27,25 @@ const COMPACT_ASPECT: Record<CompactVariant, string> = {
   tall: 'aspect-[3/4]',
 }
 
+function getTagSearch(
+  tag: string,
+  filterTags?: string[],
+  tagLinkSearch?: Record<string, string | undefined>
+) {
+  if (filterTags && tagLinkSearch) {
+    const toggled = toggleTagInFilter(filterTags, tag)
+    return { ...tagLinkSearch, ...buildTagSearch(toggled) }
+  }
+  return { tag }
+}
+
 export function BlogCard({
   post,
   featured = false,
   compact = false,
   adminMode = false,
+  filterTags,
+  tagLinkSearch,
 }: BlogCardProps) {
   const navigate = useNavigate()
   const detailPath = adminMode ? '/admin/blog/$slug' : '/blog/$slug'
@@ -91,7 +110,7 @@ export function BlogCard({
                     <Link
                       key={t}
                       to="/blog"
-                      search={{ tag: t }}
+                      search={getTagSearch(t, filterTags, tagLinkSearch)}
                       onClick={(e) => e.stopPropagation()}
                       className="px-2.5 py-1 rounded-md bg-zinc-800/90 text-zinc-300 hover:bg-zinc-700/80 hover:text-zinc-100"
                     >
@@ -113,7 +132,6 @@ export function BlogCard({
     const variant: CompactVariant =
       typeof compact === 'string' ? compact : 'default'
     const aspectClass = COMPACT_ASPECT[variant]
-    const isBottomRow = variant === 'square' || variant === 'tall'
 
     return (
       <li className="relative group overflow-hidden rounded-lg border border-zinc-800/80 bg-zinc-900/40 transition-colors group-hover:border-zinc-700/60 group-hover:bg-zinc-800/50 h-full flex flex-col">
@@ -124,11 +142,11 @@ export function BlogCard({
           aria-label={adminMode ? `ブログ「${post.title}」を編集` : `ブログ「${post.title}」を読む`}
         />
         <div
-          className={`relative z-10 flex flex-col cursor-pointer ${isBottomRow ? 'flex-1 min-h-0' : ''}`}
+          className={`relative z-10 flex flex-col cursor-pointer flex-1 min-h-0`}
           onClick={handleClick}
         >
           <div
-            className={`relative w-full min-h-[80px] overflow-hidden ${isBottomRow ? 'flex-1' : ''} ${!isBottomRow ? aspectClass : ''}`}
+            className={`relative w-full min-h-[80px] overflow-hidden flex-1 min-h-0 ${aspectClass} max-lg:aspect-auto`}
           >
             {post.firstView ? (
               <>
@@ -146,7 +164,7 @@ export function BlogCard({
             )}
           </div>
           <div
-            className={`flex flex-col gap-1.5 px-3 py-2.5 pointer-events-none flex-shrink-0 ${isBottomRow ? 'min-h-[4.5rem]' : ''}`}
+            className="flex flex-col gap-1.5 px-3 py-2.5 pointer-events-none flex-shrink-0 min-h-[4.5rem]"
           >
             <h3 className="text-sm font-semibold text-zinc-100 group-hover:text-cyan-400 transition-colors line-clamp-2 leading-snug">
               {post.title}
@@ -164,7 +182,7 @@ export function BlogCard({
                   <Link
                     key={t}
                     to="/blog"
-                    search={{ tag: t }}
+                    search={getTagSearch(t, filterTags, tagLinkSearch)}
                     onClick={(e) => e.stopPropagation()}
                     className="px-1.5 py-0.5 rounded bg-zinc-800/80 text-zinc-500 hover:bg-zinc-700/60 hover:text-zinc-300"
                   >
@@ -228,7 +246,7 @@ export function BlogCard({
                 <Link
                   key={t}
                   to="/blog"
-                  search={{ tag: t }}
+                  search={getTagSearch(t, filterTags, tagLinkSearch)}
                   onClick={(e) => e.stopPropagation()}
                   className="px-2 py-0.5 rounded-md bg-zinc-800/80 text-zinc-500 hover:bg-zinc-700/60 hover:text-zinc-300"
                 >

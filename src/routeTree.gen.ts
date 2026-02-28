@@ -31,14 +31,22 @@ import { Route as ArticlesSlugRouteImport } from './routes/articles.$slug'
 import { Route as ApiContactRouteImport } from './routes/api.contact'
 import { Route as AdminWorksRouteImport } from './routes/admin.works'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminScrapsRouteImport } from './routes/admin.scraps'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
+import { Route as AdminArticlesRouteImport } from './routes/admin.articles'
 import { Route as AdminWorksIndexRouteImport } from './routes/admin.works.index'
+import { Route as AdminScrapsIndexRouteImport } from './routes/admin.scraps.index'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
+import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
 import { Route as ApiBlogAssetsProxyRouteImport } from './routes/api.blog-assets.proxy'
 import { Route as AdminWorksNewRouteImport } from './routes/admin.works.new'
 import { Route as AdminWorksIdRouteImport } from './routes/admin.works.$id'
+import { Route as AdminScrapsNewRouteImport } from './routes/admin.scraps.new'
+import { Route as AdminScrapsSlugRouteImport } from './routes/admin.scraps.$slug'
 import { Route as AdminBlogNewRouteImport } from './routes/admin.blog.new'
 import { Route as AdminBlogSlugRouteImport } from './routes/admin.blog.$slug'
+import { Route as AdminArticlesNewRouteImport } from './routes/admin.articles.new'
+import { Route as AdminArticlesSlugRouteImport } from './routes/admin.articles.$slug'
 import { Route as ApiBlogAssetsTempSplatRouteImport } from './routes/api.blog-assets.temp.$'
 
 const WorkRoute = WorkRouteImport.update({
@@ -151,9 +159,19 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminScrapsRoute = AdminScrapsRouteImport.update({
+  id: '/scraps',
+  path: '/scraps',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminBlogRoute = AdminBlogRouteImport.update({
   id: '/blog',
   path: '/blog',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminArticlesRoute = AdminArticlesRouteImport.update({
+  id: '/articles',
+  path: '/articles',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminWorksIndexRoute = AdminWorksIndexRouteImport.update({
@@ -161,10 +179,20 @@ const AdminWorksIndexRoute = AdminWorksIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminWorksRoute,
 } as any)
+const AdminScrapsIndexRoute = AdminScrapsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminScrapsRoute,
+} as any)
 const AdminBlogIndexRoute = AdminBlogIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminBlogRoute,
+} as any)
+const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminArticlesRoute,
 } as any)
 const ApiBlogAssetsProxyRoute = ApiBlogAssetsProxyRouteImport.update({
   id: '/api/blog-assets/proxy',
@@ -181,6 +209,16 @@ const AdminWorksIdRoute = AdminWorksIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AdminWorksRoute,
 } as any)
+const AdminScrapsNewRoute = AdminScrapsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AdminScrapsRoute,
+} as any)
+const AdminScrapsSlugRoute = AdminScrapsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AdminScrapsRoute,
+} as any)
 const AdminBlogNewRoute = AdminBlogNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -190,6 +228,16 @@ const AdminBlogSlugRoute = AdminBlogSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => AdminBlogRoute,
+} as any)
+const AdminArticlesNewRoute = AdminArticlesNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AdminArticlesRoute,
+} as any)
+const AdminArticlesSlugRoute = AdminArticlesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AdminArticlesRoute,
 } as any)
 const ApiBlogAssetsTempSplatRoute = ApiBlogAssetsTempSplatRouteImport.update({
   id: '/api/blog-assets/temp/$',
@@ -208,7 +256,9 @@ export interface FileRoutesByFullPath {
   '/scraps': typeof ScrapsRouteWithChildren
   '/tech': typeof TechRouteWithChildren
   '/work': typeof WorkRouteWithChildren
+  '/admin/articles': typeof AdminArticlesRouteWithChildren
   '/admin/blog': typeof AdminBlogRouteWithChildren
+  '/admin/scraps': typeof AdminScrapsRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/works': typeof AdminWorksRouteWithChildren
   '/api/contact': typeof ApiContactRoute
@@ -221,12 +271,18 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/scraps/': typeof ScrapsIndexRoute
   '/tech/': typeof TechIndexRoute
+  '/admin/articles/$slug': typeof AdminArticlesSlugRoute
+  '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$slug': typeof AdminBlogSlugRoute
   '/admin/blog/new': typeof AdminBlogNewRoute
+  '/admin/scraps/$slug': typeof AdminScrapsSlugRoute
+  '/admin/scraps/new': typeof AdminScrapsNewRoute
   '/admin/works/$id': typeof AdminWorksIdRoute
   '/admin/works/new': typeof AdminWorksNewRoute
   '/api/blog-assets/proxy': typeof ApiBlogAssetsProxyRoute
+  '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
+  '/admin/scraps/': typeof AdminScrapsIndexRoute
   '/admin/works/': typeof AdminWorksIndexRoute
   '/api/blog-assets/temp/$': typeof ApiBlogAssetsTempSplatRoute
 }
@@ -247,12 +303,18 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/scraps': typeof ScrapsIndexRoute
   '/tech': typeof TechIndexRoute
+  '/admin/articles/$slug': typeof AdminArticlesSlugRoute
+  '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$slug': typeof AdminBlogSlugRoute
   '/admin/blog/new': typeof AdminBlogNewRoute
+  '/admin/scraps/$slug': typeof AdminScrapsSlugRoute
+  '/admin/scraps/new': typeof AdminScrapsNewRoute
   '/admin/works/$id': typeof AdminWorksIdRoute
   '/admin/works/new': typeof AdminWorksNewRoute
   '/api/blog-assets/proxy': typeof ApiBlogAssetsProxyRoute
+  '/admin/articles': typeof AdminArticlesIndexRoute
   '/admin/blog': typeof AdminBlogIndexRoute
+  '/admin/scraps': typeof AdminScrapsIndexRoute
   '/admin/works': typeof AdminWorksIndexRoute
   '/api/blog-assets/temp/$': typeof ApiBlogAssetsTempSplatRoute
 }
@@ -268,7 +330,9 @@ export interface FileRoutesById {
   '/scraps': typeof ScrapsRouteWithChildren
   '/tech': typeof TechRouteWithChildren
   '/work': typeof WorkRouteWithChildren
+  '/admin/articles': typeof AdminArticlesRouteWithChildren
   '/admin/blog': typeof AdminBlogRouteWithChildren
+  '/admin/scraps': typeof AdminScrapsRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/works': typeof AdminWorksRouteWithChildren
   '/api/contact': typeof ApiContactRoute
@@ -281,12 +345,18 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/scraps/': typeof ScrapsIndexRoute
   '/tech/': typeof TechIndexRoute
+  '/admin/articles/$slug': typeof AdminArticlesSlugRoute
+  '/admin/articles/new': typeof AdminArticlesNewRoute
   '/admin/blog/$slug': typeof AdminBlogSlugRoute
   '/admin/blog/new': typeof AdminBlogNewRoute
+  '/admin/scraps/$slug': typeof AdminScrapsSlugRoute
+  '/admin/scraps/new': typeof AdminScrapsNewRoute
   '/admin/works/$id': typeof AdminWorksIdRoute
   '/admin/works/new': typeof AdminWorksNewRoute
   '/api/blog-assets/proxy': typeof ApiBlogAssetsProxyRoute
+  '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
+  '/admin/scraps/': typeof AdminScrapsIndexRoute
   '/admin/works/': typeof AdminWorksIndexRoute
   '/api/blog-assets/temp/$': typeof ApiBlogAssetsTempSplatRoute
 }
@@ -303,7 +373,9 @@ export interface FileRouteTypes {
     | '/scraps'
     | '/tech'
     | '/work'
+    | '/admin/articles'
     | '/admin/blog'
+    | '/admin/scraps'
     | '/admin/settings'
     | '/admin/works'
     | '/api/contact'
@@ -316,12 +388,18 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/scraps/'
     | '/tech/'
+    | '/admin/articles/$slug'
+    | '/admin/articles/new'
     | '/admin/blog/$slug'
     | '/admin/blog/new'
+    | '/admin/scraps/$slug'
+    | '/admin/scraps/new'
     | '/admin/works/$id'
     | '/admin/works/new'
     | '/api/blog-assets/proxy'
+    | '/admin/articles/'
     | '/admin/blog/'
+    | '/admin/scraps/'
     | '/admin/works/'
     | '/api/blog-assets/temp/$'
   fileRoutesByTo: FileRoutesByTo
@@ -342,12 +420,18 @@ export interface FileRouteTypes {
     | '/blog'
     | '/scraps'
     | '/tech'
+    | '/admin/articles/$slug'
+    | '/admin/articles/new'
     | '/admin/blog/$slug'
     | '/admin/blog/new'
+    | '/admin/scraps/$slug'
+    | '/admin/scraps/new'
     | '/admin/works/$id'
     | '/admin/works/new'
     | '/api/blog-assets/proxy'
+    | '/admin/articles'
     | '/admin/blog'
+    | '/admin/scraps'
     | '/admin/works'
     | '/api/blog-assets/temp/$'
   id:
@@ -362,7 +446,9 @@ export interface FileRouteTypes {
     | '/scraps'
     | '/tech'
     | '/work'
+    | '/admin/articles'
     | '/admin/blog'
+    | '/admin/scraps'
     | '/admin/settings'
     | '/admin/works'
     | '/api/contact'
@@ -375,12 +461,18 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/scraps/'
     | '/tech/'
+    | '/admin/articles/$slug'
+    | '/admin/articles/new'
     | '/admin/blog/$slug'
     | '/admin/blog/new'
+    | '/admin/scraps/$slug'
+    | '/admin/scraps/new'
     | '/admin/works/$id'
     | '/admin/works/new'
     | '/api/blog-assets/proxy'
+    | '/admin/articles/'
     | '/admin/blog/'
+    | '/admin/scraps/'
     | '/admin/works/'
     | '/api/blog-assets/temp/$'
   fileRoutesById: FileRoutesById
@@ -557,11 +649,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/scraps': {
+      id: '/admin/scraps'
+      path: '/scraps'
+      fullPath: '/admin/scraps'
+      preLoaderRoute: typeof AdminScrapsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/blog': {
       id: '/admin/blog'
       path: '/blog'
       fullPath: '/admin/blog'
       preLoaderRoute: typeof AdminBlogRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/articles': {
+      id: '/admin/articles'
+      path: '/articles'
+      fullPath: '/admin/articles'
+      preLoaderRoute: typeof AdminArticlesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/works/': {
@@ -571,12 +677,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminWorksIndexRouteImport
       parentRoute: typeof AdminWorksRoute
     }
+    '/admin/scraps/': {
+      id: '/admin/scraps/'
+      path: '/'
+      fullPath: '/admin/scraps/'
+      preLoaderRoute: typeof AdminScrapsIndexRouteImport
+      parentRoute: typeof AdminScrapsRoute
+    }
     '/admin/blog/': {
       id: '/admin/blog/'
       path: '/'
       fullPath: '/admin/blog/'
       preLoaderRoute: typeof AdminBlogIndexRouteImport
       parentRoute: typeof AdminBlogRoute
+    }
+    '/admin/articles/': {
+      id: '/admin/articles/'
+      path: '/'
+      fullPath: '/admin/articles/'
+      preLoaderRoute: typeof AdminArticlesIndexRouteImport
+      parentRoute: typeof AdminArticlesRoute
     }
     '/api/blog-assets/proxy': {
       id: '/api/blog-assets/proxy'
@@ -599,6 +719,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminWorksIdRouteImport
       parentRoute: typeof AdminWorksRoute
     }
+    '/admin/scraps/new': {
+      id: '/admin/scraps/new'
+      path: '/new'
+      fullPath: '/admin/scraps/new'
+      preLoaderRoute: typeof AdminScrapsNewRouteImport
+      parentRoute: typeof AdminScrapsRoute
+    }
+    '/admin/scraps/$slug': {
+      id: '/admin/scraps/$slug'
+      path: '/$slug'
+      fullPath: '/admin/scraps/$slug'
+      preLoaderRoute: typeof AdminScrapsSlugRouteImport
+      parentRoute: typeof AdminScrapsRoute
+    }
     '/admin/blog/new': {
       id: '/admin/blog/new'
       path: '/new'
@@ -613,6 +747,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBlogSlugRouteImport
       parentRoute: typeof AdminBlogRoute
     }
+    '/admin/articles/new': {
+      id: '/admin/articles/new'
+      path: '/new'
+      fullPath: '/admin/articles/new'
+      preLoaderRoute: typeof AdminArticlesNewRouteImport
+      parentRoute: typeof AdminArticlesRoute
+    }
+    '/admin/articles/$slug': {
+      id: '/admin/articles/$slug'
+      path: '/$slug'
+      fullPath: '/admin/articles/$slug'
+      preLoaderRoute: typeof AdminArticlesSlugRouteImport
+      parentRoute: typeof AdminArticlesRoute
+    }
     '/api/blog-assets/temp/$': {
       id: '/api/blog-assets/temp/$'
       path: '/api/blog-assets/temp/$'
@@ -622,6 +770,22 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AdminArticlesRouteChildren {
+  AdminArticlesSlugRoute: typeof AdminArticlesSlugRoute
+  AdminArticlesNewRoute: typeof AdminArticlesNewRoute
+  AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
+}
+
+const AdminArticlesRouteChildren: AdminArticlesRouteChildren = {
+  AdminArticlesSlugRoute: AdminArticlesSlugRoute,
+  AdminArticlesNewRoute: AdminArticlesNewRoute,
+  AdminArticlesIndexRoute: AdminArticlesIndexRoute,
+}
+
+const AdminArticlesRouteWithChildren = AdminArticlesRoute._addFileChildren(
+  AdminArticlesRouteChildren,
+)
 
 interface AdminBlogRouteChildren {
   AdminBlogSlugRoute: typeof AdminBlogSlugRoute
@@ -637,6 +801,22 @@ const AdminBlogRouteChildren: AdminBlogRouteChildren = {
 
 const AdminBlogRouteWithChildren = AdminBlogRoute._addFileChildren(
   AdminBlogRouteChildren,
+)
+
+interface AdminScrapsRouteChildren {
+  AdminScrapsSlugRoute: typeof AdminScrapsSlugRoute
+  AdminScrapsNewRoute: typeof AdminScrapsNewRoute
+  AdminScrapsIndexRoute: typeof AdminScrapsIndexRoute
+}
+
+const AdminScrapsRouteChildren: AdminScrapsRouteChildren = {
+  AdminScrapsSlugRoute: AdminScrapsSlugRoute,
+  AdminScrapsNewRoute: AdminScrapsNewRoute,
+  AdminScrapsIndexRoute: AdminScrapsIndexRoute,
+}
+
+const AdminScrapsRouteWithChildren = AdminScrapsRoute._addFileChildren(
+  AdminScrapsRouteChildren,
 )
 
 interface AdminWorksRouteChildren {
@@ -656,14 +836,18 @@ const AdminWorksRouteWithChildren = AdminWorksRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminArticlesRoute: typeof AdminArticlesRouteWithChildren
   AdminBlogRoute: typeof AdminBlogRouteWithChildren
+  AdminScrapsRoute: typeof AdminScrapsRouteWithChildren
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminWorksRoute: typeof AdminWorksRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminArticlesRoute: AdminArticlesRouteWithChildren,
   AdminBlogRoute: AdminBlogRouteWithChildren,
+  AdminScrapsRoute: AdminScrapsRouteWithChildren,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminWorksRoute: AdminWorksRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,

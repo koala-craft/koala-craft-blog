@@ -10,7 +10,7 @@ import type { Article } from './types'
 const CONTENT_DIR = path.join(process.cwd(), 'content')
 
 /**
- * frontmatter から topics をパース（Zenn 形式）
+ * frontmatter から topics をパース（Tech 形式）
  * - topics: ["a", "b"] のインライン配列
  * - topics:\n  - a\n  - b の YAML リスト形式
  */
@@ -56,9 +56,9 @@ function parseArticle(content: string, slug: string): Article | null {
     frontmatter.match(/published_at:\s*(.+)/)?.[1]?.trim() ??
     ''
   const createdAt = rawCreatedAt.replace(/^["'\s\u201C\u201D]+|["'\s\u201C\u201D]+$/g, '')
-  // タグは topics から取得（Zenn 形式）
+  // タグは topics から取得（Tech 形式）
   const tags = parseTopicsFromFrontmatter(frontmatter)
-  // visibility: 明示指定 > Zenn の published > デフォルト public
+  // visibility: 明示指定 > Tech の published > デフォルト public
   let visibility: 'public' | 'private' = 'public'
   const visibilityVal = frontmatter.match(/visibility:\s*(.+)/)?.[1]?.trim()
   const publishedVal = frontmatter.match(/published:\s*(.+)/)?.[1]?.trim()
@@ -68,10 +68,24 @@ function parseArticle(content: string, slug: string): Article | null {
     visibility = 'private'
   }
 
-  return { slug, title, content: body, createdAt, tags, visibility }
+  const firstView = frontmatter.match(/firstView:\s*(.+)/)?.[1]?.trim()
+
+  return {
+    slug,
+    title,
+    content: body ?? '',
+    createdAt,
+    tags,
+    visibility,
+    firstView: firstView || undefined,
+  }
 }
 
-async function fetchArticlesFromGitHub(owner: string, repo: string): Promise<Article[]> {
+async function fetchArticlesFromGitHub(
+  owner: string,
+  repo: string,
+  includePrivate = false
+): Promise<Article[]> {
   const files = await fetchDirectory(owner, repo, 'articles')
   const articles: Article[] = []
 
@@ -84,7 +98,7 @@ async function fetchArticlesFromGitHub(owner: string, repo: string): Promise<Art
     if (!content) continue
 
     const article = parseArticle(content, slug)
-    if (article && article.visibility === 'public') {
+    if (article && (includePrivate || article.visibility === 'public')) {
       articles.push(article)
     }
   }
@@ -92,7 +106,7 @@ async function fetchArticlesFromGitHub(owner: string, repo: string): Promise<Art
   return articles.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
-function fetchArticlesFromLocal(): Article[] {
+function fetchArticlesFromLocal(includePrivate = false): Article[] {
   const articlesDir = path.join(CONTENT_DIR, 'articles')
   if (!fs.existsSync(articlesDir)) return []
 
@@ -106,7 +120,7 @@ function fetchArticlesFromLocal(): Article[] {
 
     const content = fs.readFileSync(path.join(articlesDir, file), 'utf-8')
     const article = parseArticle(content, slug)
-    if (article && article.visibility === 'public') {
+    if (article && (includePrivate || article.visibility === 'public')) {
       articles.push(article)
     }
   }
@@ -122,7 +136,7 @@ export const getArticles = createServerFn({ method: 'GET' }).handler(async (): P
 
       if (parsed) {
         try {
-          return await fetchArticlesFromGitHub(parsed.owner, parsed.repo)
+          return await fetchArticlesFromGitHub(parsed.owner, parsed.repo, false)
         } catch {
           // GitHub 取得失敗時はフォールバック
         }
@@ -130,8 +144,27 @@ export const getArticles = createServerFn({ method: 'GET' }).handler(async (): P
     } catch {
       // site_config 取得失敗時もフォールバック
     }
-    return fetchArticlesFromLocal()
+    return fetchArticlesFromLocal(false)
   })
+})
+
+/** 管理者用: 非公開記事も含めて取得 */
+export const getAdminArticles = createServerFn({ method: 'GET' }).handler(async (): Promise<Article[]> => {
+  try {
+    const githubUrl = await getGithubRepoUrlForServer()
+    const parsed = githubUrl ? parseRepoUrl(githubUrl) : null
+
+    if (parsed) {
+      try {
+        return await fetchArticlesFromGitHub(parsed.owner, parsed.repo, true)
+      } catch {
+        // fallback
+      }
+    }
+  } catch {
+    // fallback
+  }
+  return fetchArticlesFromLocal(true)
 })
 
 export const getArticle = createServerFn({ method: 'GET' })

@@ -23,14 +23,14 @@ export function validateGithubRepoUrl(value: string): { valid: boolean; error?: 
   return { valid: true }
 }
 
-const ZENN_USERNAME_REGEX = /^[a-z0-9_-]*$/
+const TECH_USERNAME_REGEX = /^[a-z0-9_-]*$/
 
-export function validateZennUsername(value: string): { valid: boolean; error?: string } {
+export function validateTechUsername(value: string): { valid: boolean; error?: string } {
   if (value === '') return { valid: true }
   if (value.length > 50) {
     return { valid: false, error: '50文字以内で入力してください' }
   }
-  if (!ZENN_USERNAME_REGEX.test(value)) {
+  if (!TECH_USERNAME_REGEX.test(value)) {
     return {
       valid: false,
       error: '小文字英数字・ハイフン・アンダースコアのみ使用できます',
@@ -89,7 +89,7 @@ export function validateAuthorIcon(url: string): { valid: boolean; error?: strin
  */
 export async function setSiteConfigAll(params: {
   github_repo_url: string
-  zenn_username: string
+  tech_username: string
   author_name: string
   site_title: string
   site_subtitle: string
@@ -100,9 +100,9 @@ export async function setSiteConfigAll(params: {
   if (!urlValidation.valid) {
     return { success: false, error: urlValidation.error }
   }
-  const zennValidation = validateZennUsername(params.zenn_username)
-  if (!zennValidation.valid) {
-    return { success: false, error: zennValidation.error }
+  const techValidation = validateTechUsername(params.tech_username)
+  if (!techValidation.valid) {
+    return { success: false, error: techValidation.error }
   }
   const authorNameValidation = validateAuthorName(params.author_name)
   if (!authorNameValidation.valid) {
@@ -124,7 +124,7 @@ export async function setSiteConfigAll(params: {
   }
   return setConfigPartial({
     github_repo_url: params.github_repo_url,
-    zenn_username: params.zenn_username,
+    tech_username: params.tech_username,
     author_name: params.author_name.trim(),
     site_title: params.site_title.trim(),
     site_subtitle: params.site_subtitle.trim(),
@@ -135,7 +135,7 @@ export async function setSiteConfigAll(params: {
 
 async function setConfigPartial(
   partial: Partial<
-    Pick<AppConfig, 'github_repo_url' | 'zenn_username' | 'author_name' | 'site_title' | 'site_subtitle' | 'author_icon' | 'author_one_liner'>
+    Pick<AppConfig, 'github_repo_url' | 'tech_username' | 'author_name' | 'site_title' | 'site_subtitle' | 'author_icon' | 'author_one_liner'>
   >
 ): Promise<{ success: boolean; error?: string }> {
   const { getSession } = await import('./auth')
@@ -148,7 +148,7 @@ async function setConfigPartial(
       accessToken: session.session.access_token,
       providerToken: session.session.provider_token ?? undefined,
       github_repo_url: partial.github_repo_url ?? current.github_repo_url,
-      zenn_username: partial.zenn_username ?? current.zenn_username,
+      tech_username: partial.tech_username ?? current.tech_username,
       author_name: partial.author_name ?? current.author_name ?? '',
       admins: current.admins,
       site_title: partial.site_title ?? current.site_title ?? '',

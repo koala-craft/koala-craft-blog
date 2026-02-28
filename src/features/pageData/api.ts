@@ -4,7 +4,7 @@
  */
 
 import { createServerFn } from '@tanstack/react-start'
-import { getOrSet } from '~/shared/lib/cache'
+import { getOrSet, invalidate } from '~/shared/lib/cache'
 import { getConfig } from '~/features/admin/configApi'
 import { getArticles } from '~/features/articles/api'
 import { getScraps } from '~/features/scraps/api'
@@ -35,7 +35,7 @@ export type AuthorPageData = {
   authorIcon: string
   authorName: string
   authorOneLiner: string
-  zennUsername: string
+  techUsername: string
   personalItems: WorksData['items']
   professionalItems: WorksData['items']
   sidejobItems: WorksData['items']
@@ -47,7 +47,7 @@ export const getHomePageData = createServerFn({ method: 'GET' }).handler(
     return getOrSet('page:home', async () => {
       const [articles, scraps, blogPosts, config] = await Promise.all([
         getArticles(),
-        getScraps(),
+        getScraps({ data: {} }),
         getBlogPosts(),
         getConfig(),
       ])
@@ -63,14 +63,21 @@ export const getHomePageData = createServerFn({ method: 'GET' }).handler(
 )
 
 /** Tech ページ用: articles, scraps を 1 リクエストで取得 */
-export const getTechPageData = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<TechPageData> => {
+export const getTechPageData = createServerFn({ method: 'GET' })
+  .inputValidator((data: { bypassCache?: boolean }) => data ?? {})
+  .handler(async ({ data }): Promise<TechPageData> => {
+    if (data?.bypassCache) {
+      invalidate('page:tech')
+      invalidate('scraps')
+    }
     return getOrSet('page:tech', async () => {
-      const [articles, scraps] = await Promise.all([getArticles(), getScraps()])
+      const [articles, scraps] = await Promise.all([
+        getArticles(),
+        getScraps({ data: {} }),
+      ])
       return { articles, scraps }
     })
-  }
-)
+  })
 
 /** Author ページ用: config, works を 1 リクエストで取得 */
 export const getAuthorPageData = createServerFn({ method: 'GET' }).handler(
@@ -84,7 +91,7 @@ export const getAuthorPageData = createServerFn({ method: 'GET' }).handler(
         authorIcon: config.author_icon?.trim() ?? '',
         authorName: config.author_name?.trim() ?? '',
         authorOneLiner: config.author_one_liner?.trim() ?? '',
-        zennUsername: config.zenn_username?.trim() ?? '',
+        techUsername: config.tech_username?.trim() ?? '',
         personalItems: works.items.filter((i) => i.category === 'personal'),
         professionalItems: works.items.filter((i) => i.category === 'professional'),
         sidejobItems: works.items.filter((i) => i.category === 'sidejob'),

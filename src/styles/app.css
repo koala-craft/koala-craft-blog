@@ -64,6 +64,15 @@
   }
 }
 
+/* Tech カルーセル: 横スクロールバー非表示 */
+.tech-carousel-scroll {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.tech-carousel-scroll::-webkit-scrollbar {
+  display: none !important;
+}
+
 /* トップページ TopCard: 横スクロールバー非表示 */
 .topcard-scroll {
   scrollbar-width: none !important;
@@ -156,6 +165,39 @@
 .article-prose :where(ul > li > p:last-child),
 .article-prose :where(ol > li > p:last-child) {
   margin-bottom: 0.5em;
+}
+
+/* フォーム autofill: ブラウザの青っぽい背景を透明に */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+input:autofill,
+input:autofill:hover,
+input:autofill:focus,
+input:autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+textarea:-webkit-autofill:active,
+textarea:autofill,
+textarea:autofill:hover,
+textarea:autofill:focus,
+textarea:autofill:active,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus,
+select:-webkit-autofill:active,
+select:autofill,
+select:autofill:hover,
+select:autofill:focus,
+select:autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset;
+  box-shadow: 0 0 0 1000px transparent inset;
+  -webkit-text-fill-color: inherit;
+  transition:
+    background-color 5000s ease-in-out 0s,
+    color 5000s ease-in-out 0s;
 }
 
 /* select: スマートなドロップダウン */

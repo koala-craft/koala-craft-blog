@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { FileText, Settings, Briefcase, ChevronRight } from 'lucide-react'
+import { FileText, Settings, Briefcase, ChevronRight, MessageSquare } from 'lucide-react'
 
 export const Route = createFileRoute('/admin/')({
   component: AdminDashboard,
@@ -15,6 +15,22 @@ const PANELS = [
     iconColor: 'text-cyan-400',
   },
   {
+    to: '/admin/articles',
+    title: '記事（Articles）',
+    description: '技術記事の作成・編集・削除',
+    icon: FileText,
+    iconBg: 'bg-violet-500/15',
+    iconColor: 'text-violet-400',
+  },
+  {
+    to: '/admin/scraps',
+    title: 'Stream',
+    description: 'TL形式の Stream の作成・編集・削除',
+    icon: MessageSquare,
+    iconBg: 'bg-amber-500/15',
+    iconColor: 'text-amber-400',
+  },
+  {
     to: '/admin/works',
     title: 'Work',
     description: 'Author ページのお仕事・制作物の管理',
@@ -25,7 +41,7 @@ const PANELS = [
   {
     to: '/admin/settings',
     title: 'サイト設定',
-    description: 'GitHub URL・作者アイコン・Zenn ユーザー名など',
+    description: 'GitHub URL・作者アイコン・Tech ユーザー名など',
     icon: Settings,
     iconBg: 'bg-amber-500/15',
     iconColor: 'text-amber-400',

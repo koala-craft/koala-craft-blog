@@ -4,6 +4,7 @@ import { getBlogImageSrc } from '~/shared/lib/blogImageUrl'
 import { formatDateForDisplay } from '~/shared/lib/formatDate'
 import { MarkdownWithLinkCards } from '~/shared/components/MarkdownWithLinkCards'
 import { ArticleAuthorFooter } from '~/shared/components/ArticleAuthorFooter'
+import { CommentSection } from '~/shared/components/CommentSection'
 import { useSiteAuthor } from '~/shared/hooks/useSiteAuthor'
 
 const PROSE_BASE =
@@ -80,6 +81,7 @@ function BlogDetail() {
           proseClass={`${PROSE_BASE} prose-sm`}
           useNativeBr
         />
+        <CommentSection contentType="blog" contentSlug={post.slug} />
         <ArticleAuthorFooter authorName={authorName} />
       </div>
       </div>

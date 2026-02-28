@@ -9,9 +9,9 @@ export async function getGithubRepoUrlForServer(): Promise<string> {
   return getGithubRepoUrlForServer()
 }
 
-export async function getZennUsernameForServer(): Promise<string> {
-  const { getZennUsernameForServer } = await import('./config')
-  return getZennUsernameForServer()
+export async function getTechUsernameForServer(): Promise<string> {
+  const { getTechUsernameForServer } = await import('./config')
+  return getTechUsernameForServer()
 }
 
 export async function getAuthorIconForServer(): Promise<string> {

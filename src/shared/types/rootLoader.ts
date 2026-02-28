@@ -4,7 +4,7 @@
  * 管理画面の設定フォームでも root データを利用し、API 呼び出しを 1 回に抑える。
  */
 export type RootLoaderData = {
-  zennUsername: string
+  techUsername: string
   authorName: string
   authorIcon: string
   siteTitle: string

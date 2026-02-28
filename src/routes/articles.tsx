@@ -22,7 +22,7 @@ function ArticlesLayout() {
           to="/articles"
           className={isDetail ? 'hover:text-cyan-400 transition' : 'text-cyan-400 font-medium'}
         >
-          記事
+          Article
         </Link>
       </nav>
       <Outlet />
