@@ -41,7 +41,13 @@ function buildFrontmatter(article: {
 }
 
 function buildMarkdownContent(article: Article): string {
-  const front = buildFrontmatter(article)
+  const front = buildFrontmatter({
+    title: article.title,
+    createdAt: article.createdAt,
+    topics: article.tags,
+    visibility: article.visibility,
+    firstView: article.firstView,
+  })
   return front + (article.content ?? '')
 }
 
