@@ -84,7 +84,7 @@ function AdminWorksIndex() {
                           </span>
                         )}
                         {item.description && (
-                          <p className="mt-2 text-sm text-zinc-400 line-clamp-2">
+                          <p className="mt-2 text-base text-zinc-400 line-clamp-2">
                             {item.description.replace(/#{1,6}\s/g, '').replace(/\n/g, ' ').slice(0, 120)}
                             {item.description.length > 120 ? '...' : ''}
                           </p>

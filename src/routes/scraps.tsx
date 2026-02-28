@@ -20,9 +20,10 @@ function ScrapsLayout() {
         <span aria-hidden>›</span>
         <Link
           to="/scraps"
+          search={{}}
           className={isDetail ? 'hover:text-cyan-400 transition' : 'text-cyan-400 font-medium'}
         >
-          Stream MEMO
+          SREAM MEMO
         </Link>
       </nav>
       <Outlet />

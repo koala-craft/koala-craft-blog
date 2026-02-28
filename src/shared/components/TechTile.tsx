@@ -74,12 +74,12 @@ export function TechTile({ item, size = 'default' }: TechTileProps) {
         <div className={`flex flex-col gap-2 p-4 ${isLarge ? 'flex-1 justify-end' : ''}`}>
           <h3
             className={`font-semibold text-zinc-100 group-hover:text-cyan-400 transition-colors line-clamp-2 ${
-              isLarge ? 'text-lg lg:text-xl' : 'text-sm'
+              isLarge ? 'text-lg lg:text-xl' : 'text-base'
             }`}
           >
             {title}
           </h3>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-500">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-500">
             {tags.slice(0, isLarge ? 4 : 2).map((t) => (
               <Link
                 key={t}

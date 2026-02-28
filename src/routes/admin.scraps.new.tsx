@@ -4,6 +4,7 @@ import { createScrap } from '~/features/scraps/scrapsAdminApi'
 import { getSession } from '~/features/admin/auth'
 import { ScrapEditor, type ScrapEditorMeta } from '~/features/scraps/ScrapEditor'
 import { validateSlug } from '~/shared/lib/slug'
+import type { ScrapComment } from '~/features/scraps/types'
 
 export const Route = createFileRoute('/admin/scraps/new')({
   component: AdminScrapNew,
@@ -70,12 +71,12 @@ function AdminScrapNew() {
     }
   }, [meta, comments, navigate])
 
-  const commentsAsScrapFormat = comments.map((c) => ({
+  const commentsAsScrapFormat: ScrapComment[] = comments.map((c) => ({
     author: c.author,
     created_at: new Date().toISOString().slice(0, 10),
     body_markdown: c.body_markdown,
     body_updated_at: new Date().toISOString().slice(0, 10),
-    children: [] as never[],
+    children: [],
   }))
 
   const setCommentsAsScrapFormat = (next: typeof commentsAsScrapFormat) => {

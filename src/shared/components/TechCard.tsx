@@ -121,10 +121,10 @@ export function TechCard({ item, featured = false, variant = 'default' }: TechCa
           )}
         </div>
         <div className="flex flex-col gap-1.5 px-3 py-2.5 pointer-events-none flex-shrink-0 min-h-[4.5rem]">
-          <h3 className="text-sm font-semibold text-zinc-100 group-hover:text-cyan-400 transition-colors line-clamp-2 leading-snug">
+          <h3 className="text-base font-semibold text-zinc-100 group-hover:text-cyan-400 transition-colors line-clamp-2 leading-snug">
             {title}
           </h3>
-          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-zinc-500 pointer-events-auto">
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-zinc-500 pointer-events-auto">
             {tags.slice(0, 2).map((t) => (
               <Link
                 key={t}

@@ -17,7 +17,7 @@ const SEARCH_DEBOUNCE_MS = 300
 
 export const Route = createFileRoute('/scraps/')({
   component: ScrapsIndex,
-  validateSearch: (search: Record<string, unknown>) => ({
+  validateSearch: (search: Record<string, unknown>): { tag?: string; q?: string; _refresh?: number } => ({
     tag: typeof search.tag === 'string' ? search.tag : undefined,
     q: typeof search.q === 'string' ? search.q : undefined,
     _refresh: typeof search._refresh === 'number' ? search._refresh : undefined,
@@ -116,7 +116,7 @@ function ScrapsIndex() {
 
   return (
     <div className="max-w-[96rem] mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Stream MEMO 一覧</h1>
+      <h1 className="text-3xl font-bold mb-8">SREAM MEMO 一覧</h1>
 
       {isAdmin && <ScrapComposer />}
 
@@ -128,7 +128,7 @@ function ScrapsIndex() {
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="タイトル・本文を検索..."
             className="flex-1 px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
-            aria-label="Stream MEMO 検索"
+            aria-label="SREAM MEMO 検索"
             autoComplete="off"
           />
           {searchInput && (
@@ -178,10 +178,10 @@ function ScrapsIndex() {
       {filteredScraps.length === 0 ? (
         <p className="text-zinc-500">
           {effectiveQuery
-            ? `「${effectiveQuery}」に該当する Stream MEMO がありません`
+            ? `「${effectiveQuery}」に該当する SREAM MEMO がありません`
             : filterTags.length > 0
-              ? `タグ「${filterTags.join('」「')}」に該当する Stream MEMO がありません`
-              : 'Stream MEMO がありません'}
+              ? `タグ「${filterTags.join('」「')}」に該当する SREAM MEMO がありません`
+              : 'SREAM MEMO がありません'}
         </p>
       ) : (
         <div className="space-y-8">

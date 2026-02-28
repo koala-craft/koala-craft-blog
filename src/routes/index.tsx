@@ -26,51 +26,43 @@ function HomePage() {
 
       <div id="main-content" className="max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 scroll-mt-16">
         {/* ========== Blog セクション ========== */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6">
           <h2 className="text-lg font-semibold text-zinc-200 tracking-tight">Blog</h2>
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-zinc-400 border border-zinc-600 hover:border-cyan-500/50 hover:text-cyan-400 transition-colors"
-          >
-            See All
-            <span aria-hidden>→</span>
-          </Link>
         </div>
 
         {/* マガジン風グリッド */}
         {blogPosts.length > 0 ? (
           <div
-            className="grid gap-3 sm:gap-4 lg:gap-5 mb-8"
-            style={{
-              gridTemplateColumns: 'repeat(12, minmax(0, 1fr))',
-              gridTemplateRows: 'repeat(2, minmax(0, auto))',
-            }}
+            className="grid gap-3 sm:gap-4 lg:gap-5 mb-8 max-md:grid-cols-1 max-md:grid-rows-[repeat(4,minmax(0,1fr))] max-md:min-h-[min(100dvh,960px)] md:grid-cols-12 md:grid-rows-[repeat(2,minmax(0,auto))]"
           >
+            {/* 1: メイン注目（左・大） */}
             {blogPosts[0] && (
-              <div className="col-span-12 lg:col-span-8 lg:row-span-2 h-[320px] min-h-[320px] lg:h-auto lg:min-h-[65vh]">
+              <div className="col-span-1 row-span-1 min-h-0 md:col-span-12 md:min-h-[360px] lg:col-span-8 lg:row-span-2 lg:min-h-[480px]">
                 <ul className="list-none p-0 m-0 h-full">
                   <BlogCard key={blogPosts[0].slug} post={blogPosts[0]} featured />
                 </ul>
               </div>
             )}
+            {/* 2: 右上（横長） */}
             {blogPosts[1] && (
-              <div className="col-span-12 lg:col-span-4 h-[320px] min-h-[320px] lg:h-auto lg:min-h-0">
+              <div className="col-span-1 row-span-1 min-h-0 md:col-span-12 md:min-h-[240px] lg:col-span-4 lg:min-h-0">
                 <ul className="list-none p-0 m-0 h-full">
                   <BlogCard key={blogPosts[1].slug} post={blogPosts[1]} compact="wide" />
                 </ul>
               </div>
             )}
+            {/* 3, 4: 右下（2等分・同サイズ） */}
             {blogPosts[2] && (
-              <div className="col-span-12 lg:col-span-2 h-[320px] min-h-[320px] lg:h-auto lg:min-h-0">
+              <div className="col-span-1 row-span-1 min-h-0 md:col-span-6 md:min-h-[220px] lg:col-span-2 lg:min-h-0">
                 <ul className="list-none p-0 m-0 h-full">
                   <BlogCard key={blogPosts[2].slug} post={blogPosts[2]} compact="square" />
                 </ul>
               </div>
             )}
             {blogPosts[3] && (
-              <div className="col-span-12 lg:col-span-2 h-[320px] min-h-[320px] lg:h-auto lg:min-h-0">
+              <div className="col-span-1 row-span-1 min-h-0 md:col-span-6 md:min-h-[220px] lg:col-span-2 lg:min-h-0">
                 <ul className="list-none p-0 m-0 h-full">
-                  <BlogCard key={blogPosts[3].slug} post={blogPosts[3]} compact="tall" />
+                  <BlogCard key={blogPosts[3].slug} post={blogPosts[3]} compact="square" />
                 </ul>
               </div>
             )}
@@ -81,7 +73,7 @@ function HomePage() {
 
         {/* Blog 直近20件一覧（コンパクト）※スマホでは非表示 */}
         {blogListItems.length > 0 && (
-          <div className="hidden md:block mb-16">
+          <div className="hidden md:block mb-6">
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
               {blogListItems.map((post) => (
                 <ContentListRow
@@ -100,21 +92,23 @@ function HomePage() {
           </div>
         )}
 
-        {/* ========== Tech セクション（Article | Stream 2カラム） ========== */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-cyan-500/15 text-cyan-400">
-              <Cpu className="w-5 h-5" aria-hidden />
-            </div>
-            <h2 className="text-lg font-semibold text-zinc-200 tracking-tight">Tech</h2>
-          </div>
+        {/* Blog See All */}
+        <div className="mb-16">
           <Link
-            to="/tech"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-zinc-400 border border-zinc-600 hover:border-cyan-500/50 hover:text-cyan-400 transition-colors"
+            to="/blog"
+            className="block w-full text-center py-3 rounded-lg text-sm font-medium text-zinc-400 border border-zinc-600 hover:border-cyan-500/50 hover:text-cyan-400 hover:bg-zinc-800/30 transition-colors"
           >
             See All
-            <span aria-hidden>→</span>
+            <span aria-hidden className="ml-1.5">→</span>
           </Link>
+        </div>
+
+        {/* ========== Tech セクション（Article | Stream 2カラム） ========== */}
+        <div className="flex items-center gap-2 mb-6">
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-cyan-500/15 text-cyan-400">
+            <Cpu className="w-5 h-5" aria-hidden />
+          </div>
+          <h2 className="text-lg font-semibold text-zinc-200 tracking-tight">Tech</h2>
         </div>
 
         <div className="space-y-10 mb-16">
@@ -123,18 +117,13 @@ function HomePage() {
             {articles.length > 0 ? (
               <TechCarousel
                 header={
-                  <div className="flex items-center justify-between w-full">
-                    <h3 className="flex items-center gap-2 text-sm font-medium text-zinc-400 uppercase tracking-wider">
-                      <BookOpen className="w-4 h-4 text-amber-400/80" aria-hidden />
-                      Article
-                    </h3>
-                    <Link
-                      to="/articles"
-                      className="text-xs text-zinc-500 hover:text-cyan-400 transition"
-                    >
-                      See All
-                    </Link>
-                  </div>
+                  <Link
+                    to="/articles"
+                    className="flex items-center gap-2 text-sm font-medium text-zinc-400 uppercase tracking-wider hover:text-cyan-400 transition-colors"
+                  >
+                    <BookOpen className="w-4 h-4 text-amber-400/80" aria-hidden />
+                    Article
+                  </Link>
                 }
               >
                 {articles.slice(0, 12).map((a) => (
@@ -154,32 +143,31 @@ function HomePage() {
               </TechCarousel>
             ) : (
               <>
-                <h3 className="flex items-center gap-2 mb-3 text-sm font-medium text-zinc-400 uppercase tracking-wider">
+                <Link
+                  to="/articles"
+                  className="flex items-center gap-2 mb-3 text-sm font-medium text-zinc-400 uppercase tracking-wider hover:text-cyan-400 transition-colors"
+                >
                   <BookOpen className="w-4 h-4 text-amber-400/80" aria-hidden />
                   Article
-                </h3>
+                </Link>
                 <p className="text-zinc-600 text-sm py-4">記事がありません</p>
               </>
             )}
           </section>
 
-          {/* Stream MEMO */}
+          {/* SREAM MEMO */}
           <section>
             {scraps.length > 0 ? (
               <TechCarousel
                 header={
-                  <div className="flex items-center justify-between w-full">
-                    <h3 className="flex items-center gap-2 text-sm font-medium text-zinc-400 uppercase tracking-wider">
-                      <Radio className="w-4 h-4 text-emerald-400/80" aria-hidden />
-                      Stream MEMO
-                    </h3>
-                    <Link
-                      to="/scraps"
-                      className="text-xs text-zinc-500 hover:text-cyan-400 transition"
-                    >
-                      See All
-                    </Link>
-                  </div>
+                  <Link
+                    to="/scraps"
+                    search={{}}
+                    className="flex items-center gap-2 text-sm font-medium text-zinc-400 uppercase tracking-wider hover:text-cyan-400 transition-colors"
+                  >
+                    <Radio className="w-4 h-4 text-emerald-400/80" aria-hidden />
+                    SREAM MEMO
+                  </Link>
                 }
               >
                 {scraps.slice(0, 12).map((s) => {
@@ -216,11 +204,15 @@ function HomePage() {
               </TechCarousel>
             ) : (
               <>
-                <h3 className="flex items-center gap-2 mb-3 text-sm font-medium text-zinc-400 uppercase tracking-wider">
+                <Link
+                  to="/scraps"
+                  search={{}}
+                  className="flex items-center gap-2 mb-3 text-sm font-medium text-zinc-400 uppercase tracking-wider hover:text-cyan-400 transition-colors"
+                >
                   <Radio className="w-4 h-4 text-emerald-400/80" aria-hidden />
-                  Stream MEMO
-                </h3>
-                <p className="text-zinc-600 text-sm py-4">Stream MEMO がありません</p>
+                  SREAM MEMO
+                </Link>
+                <p className="text-zinc-600 text-sm py-4">SREAM MEMO がありません</p>
               </>
             )}
           </section>

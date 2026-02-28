@@ -454,7 +454,7 @@ function ScrapDetail() {
                     to="/scraps"
                     search={{ tag: t }}
                     className="rounded-full px-3 py-1 text-xs font-medium bg-zinc-700/60 text-zinc-300 hover:bg-zinc-600/60 hover:text-zinc-100 transition"
-                  >
+                    >
                     {t}
                   </Link>
                 ))}

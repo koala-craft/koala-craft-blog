@@ -11,7 +11,7 @@ interface MarkdownWithLinkCardsProps {
   proseClass?: string
   /** br の縦余白（例: "0.25em", "0.5em"）。未指定時は CSS 変数 --prose-br-spacing のデフォルト値 */
   brSpacing?: string
-  /** true: br をネイティブのまま（p 内の line-height で余白）。false: br を prose-line-break に置換 */
+  /** true: br をネイティブのまま（p 内の line-height で余白）。false: br を prose-line-break に置換。デフォルト true で折り返しと同様の行間 */
   useNativeBr?: boolean
 }
 
@@ -45,7 +45,7 @@ export function MarkdownWithLinkCards({
   content,
   proseClass = DEFAULT_PROSE,
   brSpacing,
-  useNativeBr = false,
+  useNativeBr = true,
 }: MarkdownWithLinkCardsProps) {
   if (!content || !String(content).trim()) return null
 
@@ -92,17 +92,20 @@ export function MarkdownWithLinkCards({
   }
 
   return (
-    <div className="space-y-4" style={proseStyle}>
+    <div style={proseStyle}>
       {lines.map((line, i) => {
         const trimmed = line.trim()
+        const nextLine = lines[i + 1]
+        const isNextLineEmpty = nextLine !== undefined && !nextLine.trim()
+        
         if (!trimmed) {
-          return <ProseLineBreak key={i} />
+          return null
         }
         if (isContentOnlyLinks(trimmed)) {
           const links = extractLinks(trimmed).filter((l) => isSafeLinkUrl(l.url))
-          if (links.length === 0) return <ProseLineBreak key={i} />
+          if (links.length === 0) return null
           return (
-            <div key={i} className="space-y-3">
+            <div key={i} className={isNextLineEmpty ? 'space-y-3 mb-4' : 'space-y-3'}>
               {links.map((link, j) => (
                 <LinkCard
                   key={`${link.url}-${j}`}
@@ -113,8 +116,12 @@ export function MarkdownWithLinkCards({
             </div>
           )
         }
+        
+        const isHeadingOrList = /^(#{1,6}\s|[-*+]\s|\d+\.\s)/.test(trimmed)
+        const shouldAddMargin = isNextLineEmpty || isHeadingOrList
+        
         return (
-          <div key={i} className={proseClass}>
+          <div key={i} className={`${proseClass} ${shouldAddMargin ? 'mb-4' : ''}`}>
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkBreaks]}
               components={markdownComponents}

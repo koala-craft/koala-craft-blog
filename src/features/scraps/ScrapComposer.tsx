@@ -1,6 +1,6 @@
 /**
  * スクラップ新規作成コンポーザー（Twitter風）
- * Stream MEMO 一覧ページで表示（管理者のみ）
+ * SREAM MEMO 一覧ページで表示（管理者のみ）
  */
 
 import { useState, useCallback, useRef } from 'react'
@@ -187,7 +187,7 @@ export function ScrapComposer() {
             value={body}
             onChange={(e) => setBody(e.target.value)}
             onFocus={() => setExpanded(true)}
-            placeholder="新しい Stream MEMO を書く..."
+            placeholder="新しい SREAM MEMO を書く..."
             rows={expanded ? 4 : 2}
             className="w-full px-4 py-3 bg-transparent text-zinc-100 placeholder-zinc-500 resize-none focus:outline-none border-b border-zinc-800 focus:border-cyan-500/50 transition-colors"
           />

@@ -20,6 +20,8 @@ type MarkdownEditorWithPreviewProps = {
   compact?: boolean
   /** スクラップ投稿用: 入力・プレビューとも元のフォームスタイルを維持 */
   scrapStyle?: boolean
+  /** 縦方向にリサイズ可能にする */
+  resizable?: boolean
   /** 文字数表示（メインコメント用） */
   showCharCount?: boolean
   /** テキストエリアにフォーカス */
@@ -36,6 +38,7 @@ export function MarkdownEditorWithPreview({
   maxLength,
   compact = false,
   scrapStyle = false,
+  resizable = false,
   showCharCount = false,
   autoFocus = false,
   id,
@@ -43,8 +46,10 @@ export function MarkdownEditorWithPreview({
 }: MarkdownEditorWithPreviewProps) {
   const [viewMode, setViewMode] = useState<'editor' | 'preview'>('editor')
 
+  const resizeClass = resizable ? 'resize-y min-h-0' : 'resize-none'
+
   const inputBase = scrapStyle
-    ? 'w-full px-3 py-2 bg-transparent text-zinc-100 text-sm placeholder-zinc-500 resize-none focus:outline-none border-b border-zinc-800 focus:border-cyan-500/50 transition-colors'
+    ? `w-full px-3 py-2 bg-transparent text-zinc-100 text-sm placeholder-zinc-500 ${resizeClass} focus:outline-none border-b border-zinc-800 focus:border-cyan-500/50 transition-colors`
     : compact
       ? 'w-full px-0 py-2 bg-transparent border-0 border-b border-zinc-600 text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-cyan-500/70 focus:placeholder-zinc-500 resize-y transition-colors'
       : 'w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 text-sm placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 resize-y'

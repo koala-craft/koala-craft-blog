@@ -277,7 +277,7 @@ function ArticleDetail() {
           proseClass={`${PROSE_BASE} prose-sm`}
           useNativeBr
         />
-        <CommentSection contentType="article" contentSlug={article.slug} />
+        <CommentSection contentType="article" contentSlug={article.slug} scrapStyle />
         <ArticleAuthorFooter authorName={authorName} />
       </div>
       </div>

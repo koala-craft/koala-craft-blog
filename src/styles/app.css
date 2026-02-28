@@ -89,13 +89,42 @@
   --tw-prose-links: var(--color-cyan-400);
   --tw-prose-invert-links: var(--color-cyan-400);
   --prose-br-spacing: 0.25em;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 .prose :where(h1):not(:where([class~="not-prose"] *)),
 .prose :where(h2):not(:where([class~="not-prose"] *)) {
-  @apply mt-8 mb-3;
+  @apply mt-8 mb-3 pl-5 py-3 rounded-r-lg relative overflow-hidden;
+}
+.prose :where(h1):not(:where([class~="not-prose"] *))::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, rgb(34 211 238 / 0.9), rgb(139 92 246 / 0.8));
+  border-radius: 0 2px 2px 0;
+}
+.prose :where(h1):not(:where([class~="not-prose"] *)) {
+  letter-spacing: 0.02em;
+}
+.prose :where(h2):not(:where([class~="not-prose"] *))::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, rgb(34 211 238 / 0.7), rgb(34 211 238 / 0.3));
+  border-radius: 0 2px 2px 0;
 }
 .prose :where(h1):not(:where([class~="not-prose"] *)):first-child {
   @apply mt-0;
+}
+/* 1回改行（単一ブロック）のみ margin-block-end なし。2回改行以降は prose のデフォルト margin を維持 */
+.prose > *:only-child {
+  margin-block-end: 0;
 }
 .prose pre {
   @apply bg-zinc-900 rounded-lg overflow-x-auto;
@@ -109,9 +138,13 @@
 .prose :where(pre):not(:where([class~="not-prose"] *)) code {
   @apply bg-transparent px-0 py-0;
 }
+/* 単一改行（br）: 折り返し時と同じ行間（余白ゼロ、line-height に任せる） */
 .prose-line-break {
   display: block;
-  height: 24px;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
 }
 
 /* 記事詳細: 可読性最適化（本文 1.05rem） */
@@ -132,10 +165,35 @@
 }
 .article-prose :where(h1),
 .article-prose :where(h2) {
-  @apply mt-8 mb-3;
+  @apply mt-8 mb-3 pl-5 py-3 rounded-r-lg relative overflow-hidden;
 }
-.article-prose :where(h1) { font-size: 1.5rem; }
-.article-prose :where(h2) { font-size: 1.25rem; }
+.article-prose :where(h1)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, rgb(34 211 238 / 0.9), rgb(139 92 246 / 0.8));
+  border-radius: 0 2px 2px 0;
+}
+.article-prose :where(h1) {
+  font-size: 1.5rem;
+  letter-spacing: 0.02em;
+}
+.article-prose :where(h2)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, rgb(34 211 238 / 0.7), rgb(34 211 238 / 0.3));
+  border-radius: 0 2px 2px 0;
+}
+.article-prose :where(h2) {
+  font-size: 1.25rem;
+}
 .article-prose :where(h3) { font-size: 1.125rem; }
 .article-prose :where(h4) { font-size: 1rem; }
 .article-prose :where(a) {

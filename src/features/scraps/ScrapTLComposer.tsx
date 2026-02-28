@@ -50,10 +50,11 @@ export function ScrapTLComposer({
         value={body}
         onChange={setBody}
         placeholder={placeholder}
-        rows={3}
+        rows={9}
         maxLength={5000}
         compact
         scrapStyle
+        resizable
         autoFocus={initialFocus}
       />
       {error && <p className="mt-2 text-sm text-amber-400">{error}</p>}

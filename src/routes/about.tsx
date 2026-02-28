@@ -66,7 +66,7 @@ function AboutPage() {
                 Tech
               </h3>
               <p className="text-sm text-zinc-500 leading-relaxed">
-                記事と Stream MEMO。技術コンテンツ。解説から調査メモまで。
+                記事と SREAM MEMO。技術コンテンツ。解説から調査メモまで。
               </p>
               <span className="mt-4 inline-block text-sm font-medium text-cyan-400 opacity-0 -translate-y-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
                 探す →

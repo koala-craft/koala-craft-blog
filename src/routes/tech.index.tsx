@@ -15,7 +15,7 @@ function TechIndex() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Tech</h1>
         <p className="text-zinc-500 text-sm mt-2">
-          Tech の記事と Stream MEMO を GitHub から取得しています。
+          技術的な記事や走り書き、アイデア帳です。
         </p>
       </div>
 
@@ -42,6 +42,7 @@ function TechIndex() {
 
         <Link
           to="/scraps"
+          search={{}}
           className="flex items-center gap-4 p-6 rounded-xl border border-zinc-800/80 bg-zinc-900/40 transition-colors hover:border-zinc-700/60 hover:bg-zinc-800/50 group"
         >
           <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/25 transition-colors">
@@ -49,10 +50,10 @@ function TechIndex() {
           </div>
           <div>
             <h2 className="text-lg font-semibold text-zinc-100 group-hover:text-emerald-400 transition-colors">
-              Stream MEMO
+              SREAM MEMO
             </h2>
             <p className="text-sm text-zinc-500 mt-0.5">
-              Stream MEMO {scraps.length}件
+              SREAM MEMO {scraps.length}件
             </p>
           </div>
           <span aria-hidden className="ml-auto text-zinc-500 group-hover:text-emerald-400 transition-colors">

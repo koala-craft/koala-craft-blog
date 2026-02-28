@@ -166,13 +166,13 @@ export function BlogCard({
           <div
             className="flex flex-col gap-1.5 px-3 py-2.5 pointer-events-none flex-shrink-0 min-h-[4.5rem]"
           >
-            <h3 className="text-sm font-semibold text-zinc-100 group-hover:text-cyan-400 transition-colors line-clamp-2 leading-snug">
+            <h3 className="text-base font-semibold text-zinc-100 group-hover:text-cyan-400 transition-colors line-clamp-2 leading-snug">
               {post.title}
               {adminMode && post.visibility === 'private' && (
                 <span className="ml-1 text-xs font-normal text-zinc-500">(非公開)</span>
               )}
             </h3>
-            <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-zinc-500 pointer-events-auto">
+            <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-zinc-500 pointer-events-auto">
               {post.tags.slice(0, 2).map((t) =>
                 adminMode ? (
                   <span key={t} className="px-1.5 py-0.5 rounded bg-zinc-800/80 text-zinc-500">
@@ -236,7 +236,7 @@ export function BlogCard({
               <span className="ml-1 text-xs font-normal text-zinc-500">(非公開)</span>
             )}
           </h3>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-500 pointer-events-auto">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-500 pointer-events-auto">
             {post.tags.map((t) =>
               adminMode ? (
                 <span key={t} className="px-2 py-0.5 rounded-md bg-zinc-800/80 text-zinc-500">

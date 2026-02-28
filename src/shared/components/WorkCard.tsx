@@ -73,7 +73,7 @@ export function WorkCard({ item }: WorkCardProps) {
           <h3 className="text-base font-semibold text-zinc-100 group-hover:text-cyan-400 transition-colors line-clamp-2">
             {item.title}
           </h3>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-500 pointer-events-auto">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-500 pointer-events-auto">
             {item.tags?.map((t) => (
               <span key={t} className="px-2 py-0.5 rounded-md bg-zinc-800/80 text-zinc-500">
                 {t}

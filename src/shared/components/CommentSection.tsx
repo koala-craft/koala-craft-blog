@@ -10,6 +10,7 @@ import { useAuth } from '~/features/admin/useAuth'
 import { getSession } from '~/features/admin/auth'
 import { MarkdownWithLinkCards } from '~/shared/components/MarkdownWithLinkCards'
 import { MarkdownEditorWithPreview } from '~/shared/components/MarkdownEditorWithPreview'
+import { ConfirmModal } from '~/shared/components/ConfirmModal'
 import type { Comment, ContentType } from '~/features/comments/types'
 
 const PROSE_BASE =
@@ -54,6 +55,8 @@ export function CommentSection({ contentType, contentSlug, scrapStyle = false }:
   const [replyBody, setReplyBody] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const fetchComments = useCallback(async () => {
     setLoading(true)
@@ -101,15 +104,17 @@ export function CommentSection({ contentType, contentSlug, scrapStyle = false }:
   const handleDelete = async (commentId: string) => {
     const session = await getSession()
     if (!session || !isAdmin) return
-    if (!window.confirm('このコメントを削除しますか？')) return
 
+    setDeleting(true)
     const result = await deleteComment({
       data: {
         accessToken: session.session.access_token,
         commentId,
       },
     })
+    setDeleting(false)
     if (result.success) {
+      setDeletingCommentId(null)
       await fetchComments()
     } else {
       setError(result.error ?? '削除に失敗しました')
@@ -151,10 +156,11 @@ export function CommentSection({ contentType, contentSlug, scrapStyle = false }:
               value={body}
               onChange={setBody}
               placeholder="Markdown が使えます"
-              rows={4}
+              rows={scrapStyle ? 12 : 4}
               maxLength={5000}
               compact
               scrapStyle={scrapStyle}
+              resizable={scrapStyle}
               showCharCount
             />
           </div>
@@ -173,6 +179,18 @@ export function CommentSection({ contentType, contentSlug, scrapStyle = false }:
 
       {error && <p className="text-sm text-amber-400 mb-4">{error}</p>}
 
+      <ConfirmModal
+        isOpen={deletingCommentId !== null}
+        title="このコメントを削除しますか？"
+        description="削除すると元に戻せません。"
+        confirmLabel="削除する"
+        cancelLabel="キャンセル"
+        variant="danger"
+        loading={deleting}
+        onConfirm={() => deletingCommentId && handleDelete(deletingCommentId)}
+        onCancel={() => setDeletingCommentId(null)}
+      />
+
       {loading ? (
         <p className="text-zinc-500 text-sm">読み込み中...</p>
       ) : comments.length === 0 ? (
@@ -185,6 +203,7 @@ export function CommentSection({ contentType, contentSlug, scrapStyle = false }:
               comment={c}
               depth={0}
               isAdmin={isAdmin}
+              scrapStyle={scrapStyle}
               replyingTo={replyingTo}
               replyBody={replyBody}
               setReplyingTo={setReplyingTo}
@@ -208,7 +227,7 @@ export function CommentSection({ contentType, contentSlug, scrapStyle = false }:
                   }
                 })
               }
-              onDelete={handleDelete}
+              onDelete={(id) => setDeletingCommentId(id)}
               onRefresh={fetchComments}
             />
           ))}
@@ -222,12 +241,13 @@ type CommentItemProps = {
   comment: Comment
   depth: number
   isAdmin: boolean
+  scrapStyle?: boolean
   replyingTo: string | null
   replyBody: string
   setReplyingTo: (id: string | null) => void
   setReplyBody: (body: string) => void
   onReplySubmit: (parentId: string, body: string) => Promise<void>
-  onDelete: (id: string) => Promise<void>
+  onDelete: (id: string) => void
   onRefresh: () => Promise<void>
 }
 
@@ -235,6 +255,7 @@ function CommentItem({
   comment,
   depth,
   isAdmin,
+  scrapStyle,
   replyingTo,
   replyBody,
   setReplyingTo,
@@ -292,10 +313,11 @@ function CommentItem({
               value={replyBody}
               onChange={setReplyBody}
               placeholder="返信を書く..."
-              rows={3}
+              rows={scrapStyle ? 9 : 3}
               maxLength={5000}
               compact
               scrapStyle={scrapStyle}
+              resizable={scrapStyle}
             />
             <div className="flex gap-2 pt-1">
               <button
@@ -324,6 +346,7 @@ function CommentItem({
               comment={c}
               depth={depth + 1}
               isAdmin={isAdmin}
+              scrapStyle={scrapStyle}
               replyingTo={replyingTo}
               replyBody={replyBody}
               setReplyingTo={setReplyingTo}

@@ -88,7 +88,7 @@ export function ContentListRow({
           >
             {title}
           </span>
-          <div className={`flex flex-wrap items-center gap-x-1.5 text-xs text-zinc-500 ${isTall ? 'mt-1.5' : 'mt-0.5'}`}>
+          <div className={`flex flex-wrap items-center gap-x-1.5 text-sm text-zinc-500 ${isTall ? 'mt-1.5' : 'mt-0.5'}`}>
             {tags.slice(0, 2).map((t) => (
               <Link
                 key={t}

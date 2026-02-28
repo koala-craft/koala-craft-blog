@@ -1,5 +1,5 @@
 /**
- * Article / Stream MEMO 用カルーセル
+ * Article / SREAM MEMO 用カルーセル
  * 6件/スライド、横スライドで追加表示。CSS scroll-snap で実装（依存なし）
  */
 
