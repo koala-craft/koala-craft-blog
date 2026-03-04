@@ -1,5 +1,6 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { useState } from 'react'
 import { getBlogImageSrc } from '~/shared/lib/blogImageUrl'
 import { isSafeLinkUrl } from '~/shared/lib/safeUrl'
 import { LinkCard } from './LinkCard'
@@ -29,6 +30,50 @@ function fixImageUrls(content: string): string {
 
 function ProseLineBreak() {
   return <span className="prose-line-break" aria-hidden="true" />
+}
+
+function ZoomableImage({
+  src,
+  alt,
+  className,
+  onClick,
+  ...props
+}: React.ComponentPropsWithoutRef<'img'>) {
+  const [open, setOpen] = useState(false)
+  if (!src) return null
+  const resolved = getBlogImageSrc(src)
+
+  const handleClick: React.MouseEventHandler<HTMLImageElement> = (e) => {
+    onClick?.(e)
+    e.stopPropagation()
+    setOpen(true)
+  }
+
+  return (
+    <>
+      <img
+        src={resolved}
+        alt={alt ?? ''}
+        loading="lazy"
+        decoding="async"
+        className={`${className ?? ''} cursor-zoom-in`}
+        onClick={handleClick}
+        {...props}
+      />
+      {open && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 cursor-zoom-out"
+          onClick={() => setOpen(false)}
+        >
+          <img
+            src={resolved}
+            alt={alt ?? ''}
+            className="max-w-[90vw] max-h-[90vh] object-contain"
+          />
+        </div>
+      )}
+    </>
+  )
 }
 
 /**
@@ -111,16 +156,7 @@ export function MarkdownWithLinkCards({
       ) : (
         <span {...props} />
       ),
-    img: ({ src, alt, ...props }: React.ComponentPropsWithoutRef<'img'>) =>
-      src ? (
-        <img
-          src={getBlogImageSrc(src)}
-          alt={alt ?? ''}
-          loading="lazy"
-          decoding="async"
-          {...props}
-        />
-      ) : null,
+    img: (props: React.ComponentPropsWithoutRef<'img'>) => <ZoomableImage {...props} />,
   }
 
   return (
