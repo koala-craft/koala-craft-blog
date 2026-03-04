@@ -1,11 +1,13 @@
 /**
  * Markdown 編集 + プレビュー切り替え
  * スクラップ投稿・コメント・編集フォームで共通利用
+ *
+ * プレビューは Strata のノート用 MarkdownPreview に近い挙動に合わせる。
  */
 
 import { useState } from 'react'
 import { Code, Eye } from 'lucide-react'
-import { MarkdownWithLinkCards } from './MarkdownWithLinkCards'
+import { EditorMarkdownPreview } from './EditorMarkdownPreview'
 
 const PROSE_BASE =
   'prose prose-invert prose-zinc max-w-none prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline prose-sm [&>*:first-child]:!mt-0'
@@ -109,24 +111,17 @@ export function MarkdownEditorWithPreview({
       ) : scrapStyle ? (
         <div className="min-h-[80px] overflow-auto border-b border-zinc-800 px-3 py-2">
           <div className={`${PROSE_BASE} text-zinc-300`}>
-            <MarkdownWithLinkCards
-              content={value || '*プレビューがここに表示されます*'}
-              proseClass={`${PROSE_BASE} prose-sm`}
-              useNativeBr
-            />
+            <EditorMarkdownPreview content={value} onContentChange={onChange} />
           </div>
         </div>
       ) : (
         <div className="rounded-lg bg-zinc-800/50 border border-zinc-700/80 px-3 py-2 min-h-[80px] overflow-auto">
           <div className={`${PROSE_BASE} text-zinc-300`}>
-            <MarkdownWithLinkCards
-              content={value || '*プレビューがここに表示されます*'}
-              proseClass={`${PROSE_BASE} prose-sm`}
-              useNativeBr
-            />
+            <EditorMarkdownPreview content={value} onContentChange={onChange} />
           </div>
         </div>
       )}
     </div>
   )
 }
+

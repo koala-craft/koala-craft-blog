@@ -94,30 +94,11 @@
 }
 .prose :where(h1):not(:where([class~="not-prose"] *)),
 .prose :where(h2):not(:where([class~="not-prose"] *)) {
-  @apply mt-8 mb-3 pl-5 py-3 rounded-r-lg relative overflow-hidden;
+  @apply mt-8 mb-4 pb-2 font-semibold text-zinc-100 border-b border-zinc-700;
 }
-.prose :where(h1):not(:where([class~="not-prose"] *))::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(180deg, rgb(34 211 238 / 0.9), rgb(139 92 246 / 0.8));
-  border-radius: 0 2px 2px 0;
-}
-.prose :where(h1):not(:where([class~="not-prose"] *)) {
-  letter-spacing: 0.02em;
-}
+.prose :where(h1):not(:where([class~="not-prose"] *))::before,
 .prose :where(h2):not(:where([class~="not-prose"] *))::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: linear-gradient(180deg, rgb(34 211 238 / 0.7), rgb(34 211 238 / 0.3));
-  border-radius: 0 2px 2px 0;
+  content: none;
 }
 .prose :where(h1):not(:where([class~="not-prose"] *)):first-child {
   @apply mt-0;
@@ -127,7 +108,7 @@
   margin-block-end: 0;
 }
 .prose pre {
-  @apply bg-zinc-900 rounded-lg overflow-x-auto;
+  @apply bg-zinc-900 overflow-x-auto;
 }
 .prose pre code {
   @apply bg-transparent p-0 text-inherit;
@@ -165,31 +146,11 @@
 }
 .article-prose :where(h1),
 .article-prose :where(h2) {
-  @apply mt-8 mb-3 pl-5 py-3 rounded-r-lg relative overflow-hidden;
-}
-.article-prose :where(h1)::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(180deg, rgb(34 211 238 / 0.9), rgb(139 92 246 / 0.8));
-  border-radius: 0 2px 2px 0;
+  @apply mt-8 mb-4 pb-2 border-b border-zinc-700;
 }
 .article-prose :where(h1) {
   font-size: 1.5rem;
   letter-spacing: 0.02em;
-}
-.article-prose :where(h2)::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: linear-gradient(180deg, rgb(34 211 238 / 0.7), rgb(34 211 238 / 0.3));
-  border-radius: 0 2px 2px 0;
 }
 .article-prose :where(h2) {
   font-size: 1.25rem;
@@ -224,6 +185,108 @@
 .article-prose :where(ol > li > p:last-child) {
   margin-bottom: 0.5em;
 }
+.article-prose :where(pre):not(:where([class~="not-prose"] *)) {
+  background-color: rgb(24 24 27); /* bg-zinc-900 */
+  border-radius: 0;
+  overflow-x: auto;
+}
+
+/* Markdown エディタ用プレビュー（Strata 風） */
+.editor-preview {
+  padding: 2rem;
+  color: rgb(228 228 231); /* text-zinc-200 */
+  line-height: 1.7;
+  font-size: 0.9rem;
+}
+.editor-preview a {
+  color: rgb(34 211 238); /* text-cyan-400 */
+  text-decoration: none;
+}
+.editor-preview a:hover {
+  text-decoration: underline;
+}
+.editor-preview h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgb(63 63 70); /* border-zinc-700 */
+}
+.editor-preview h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgb(63 63 70);
+}
+.editor-preview h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+.editor-preview h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+.editor-preview h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+.editor-preview h6 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  color: rgb(113 113 122); /* text-zinc-500 */
+}
+.editor-preview p {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.editor-preview ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.editor-preview ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.editor-preview li {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+.editor-preview pre {
+  background-color: rgb(24 24 27); /* bg-zinc-900 */
+  padding: 1rem;
+  border-radius: 0; /* Strata: 角丸なしのフラットなコードブロック */
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  overflow-x: auto;
+}
+.editor-preview code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  background-color: rgba(39, 39, 42, 0.7); /* bg-zinc-800/70 */
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.375rem;
+  font-size: 0.85em;
+}
+.editor-preview pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
 
 /* フォーム autofill: ブラウザの青っぽい背景を透明に */
 input:-webkit-autofill,

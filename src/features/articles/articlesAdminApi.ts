@@ -92,6 +92,37 @@ export const createArticle = createServerFn({ method: 'POST' })
     }
 
     const now = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+
+    let resolvedFirstView = data.firstView?.trim() || undefined
+
+    // firstView が temp URL の場合は GitHub にアップロードして差し替え（新規作成時）
+    if (resolvedFirstView?.startsWith('/api/blog-assets/temp/')) {
+      const tempFilename = resolvedFirstView.replace('/api/blog-assets/temp/', '')
+      const buffer = readTempImage(tempFilename)
+      if (buffer) {
+        const base64 = buffer.toString('base64')
+        const ext = tempFilename.split('.').pop() ?? 'png'
+        const filename = `firstview-${Date.now()}.${ext}`
+        const assetPath = `articles/assets/${data.slug}/${filename}`
+        const assetSha = await getFileSha(parsed.owner, parsed.repo, assetPath, token)
+        const uploadResult = await updateFileOnGitHub(
+          parsed.owner,
+          parsed.repo,
+          assetPath,
+          base64,
+          `article: add firstview ${filename}`,
+          token,
+          assetSha ?? undefined,
+          true
+        )
+        if (uploadResult.success) {
+          const encodedPath = `articles/assets/${encodeURIComponent(data.slug)}/${encodeURIComponent(filename)}`
+          resolvedFirstView = `https://raw.githubusercontent.com/${parsed.owner}/${parsed.repo}/main/${encodedPath}`
+        } else {
+          return { success: false, error: uploadResult.error ?? 'ヘッダー画像のアップロードに失敗しました' }
+        }
+      }
+    }
     const article: Article = {
       slug: data.slug,
       title: data.title.trim() || data.slug,
@@ -99,7 +130,7 @@ export const createArticle = createServerFn({ method: 'POST' })
       createdAt: now,
       tags: Array.isArray(data.topics) ? data.topics : [],
       visibility: data.visibility === 'private' ? 'private' : 'public',
-      ...(data.firstView?.trim() && { firstView: data.firstView.trim() }),
+      ...(resolvedFirstView && { firstView: resolvedFirstView }),
     }
 
     const content = buildMarkdownContent(article)

@@ -1,6 +1,5 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import remarkBreaks from 'remark-breaks'
 import { extractLinks, isContentOnlyLinks } from '~/shared/lib/contentLinks'
 import { getBlogImageSrc } from '~/shared/lib/blogImageUrl'
 import { isSafeLinkUrl } from '~/shared/lib/safeUrl'
@@ -51,7 +50,8 @@ export function MarkdownWithLinkCards({
 
   const fixedContent = fixImageUrls(content)
   const lines = fixedContent.split('\n')
-  const hasLinkOnlyLine = lines.some((line) => isContentOnlyLinks(line))
+  const hasCodeFence = /(^|\n)```/.test(fixedContent)
+  const hasLinkOnlyLine = !hasCodeFence && lines.some((line) => isContentOnlyLinks(line))
 
   const proseStyle = {
     '--prose-br-spacing': brSpacing ?? '0.25em',
@@ -82,7 +82,7 @@ export function MarkdownWithLinkCards({
     return (
       <div className={proseClass} style={proseStyle}>
         <ReactMarkdown
-          remarkPlugins={[remarkGfm, remarkBreaks]}
+          remarkPlugins={[remarkGfm]}
           components={markdownComponents}
         >
           {fixedContent}
@@ -123,7 +123,7 @@ export function MarkdownWithLinkCards({
         return (
           <div key={i} className={`${proseClass} ${shouldAddMargin ? 'mb-4' : ''}`}>
             <ReactMarkdown
-              remarkPlugins={[remarkGfm, remarkBreaks]}
+              remarkPlugins={[remarkGfm]}
               components={markdownComponents}
             >
               {fixImageUrls(line)}

@@ -22,8 +22,10 @@ type BlogCardProps = {
 
 const COMPACT_ASPECT: Record<CompactVariant, string> = {
   default: 'aspect-[4/3]',
-  wide: 'aspect-[16/9]',
-  square: 'aspect-square',
+  // トップページ 2番目カード用: 縦幅を抑えた横長レイアウト
+  wide: 'aspect-[16/5]',
+  // トップページ 3・4番目カード用: 以前より縦幅を抑えたやや横長レイアウト
+  square: 'aspect-[4/3]',
   tall: 'aspect-[3/4]',
 }
 
@@ -69,7 +71,7 @@ export function BlogCard({
           className="relative z-10 flex flex-col flex-1 min-h-0 cursor-pointer"
           onClick={handleClick}
         >
-          <div className="relative w-full flex-1 min-h-[200px] rounded-xl overflow-hidden">
+          <div className="relative w-full flex-1 min-h-[100px] rounded-xl overflow-hidden">
             {post.firstView ? (
               <div
               className={`

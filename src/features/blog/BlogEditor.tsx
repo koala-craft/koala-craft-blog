@@ -79,6 +79,8 @@ export function BlogEditor({
 }: BlogEditorProps) {
   const editorRef = useRef<HTMLTextAreaElement>(null)
   const tagPickerRef = useRef<HTMLDivElement>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
+  const isSyncingRef = useRef(false)
 
   const [showMeta, setShowMeta] = useState(false)
   const [viewMode, setViewMode] = useState<'both' | 'editor' | 'preview'>('both')
@@ -269,6 +271,34 @@ export function BlogEditor({
       reader.readAsDataURL(blob)
     },
     [meta, onMetaChange]
+  )
+
+  const syncScroll = useCallback(
+    (source: 'editor' | 'preview') => {
+      const editor = editorRef.current
+      const preview = previewRef.current
+      if (!editor || !preview || viewMode !== 'both') return
+      if (isSyncingRef.current) return
+      isSyncingRef.current = true
+      requestAnimationFrame(() => {
+        try {
+          if (source === 'editor') {
+            const ratio =
+              editor.scrollTop / Math.max(1, editor.scrollHeight - editor.clientHeight)
+            preview.scrollTop =
+              ratio * Math.max(0, preview.scrollHeight - preview.clientHeight)
+          } else {
+            const ratio =
+              preview.scrollTop / Math.max(1, preview.scrollHeight - preview.clientHeight)
+            editor.scrollTop =
+              ratio * Math.max(0, editor.scrollHeight - editor.clientHeight)
+          }
+        } finally {
+          isSyncingRef.current = false
+        }
+      })
+    },
+    [viewMode]
   )
 
   const handleFirstViewDragOver = useCallback((e: React.DragEvent) => {
@@ -540,13 +570,16 @@ export function BlogEditor({
             className="blog-editor-textarea flex-1 w-full px-6 py-5 bg-transparent text-zinc-100 placeholder-zinc-600 focus:outline-none resize-none font-mono text-[15px] leading-[1.8]"
             style={{ tabSize: 2 }}
             spellCheck={false}
+            onScroll={() => syncScroll('editor')}
           />
         </div>
 
         <div
+          ref={previewRef}
           className={`flex-1 flex flex-col min-w-0 min-h-[200px] overflow-auto border-t lg:border-t-0 lg:border-l border-zinc-800 ${
             viewMode === 'editor' ? 'hidden' : ''
           }`}
+          onScroll={() => syncScroll('preview')}
         >
           <div className="px-6 py-5 max-w-[100ch] mx-auto w-full">
             <h1 className="text-2xl font-bold text-zinc-100 mb-4">

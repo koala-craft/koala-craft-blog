@@ -37,7 +37,7 @@ function HomePage() {
           >
             {/* 1: メイン注目（左・大） */}
             {blogPosts[0] && (
-              <div className="col-span-1 row-span-1 min-h-0 md:col-span-12 md:min-h-[360px] lg:col-span-8 lg:row-span-2 lg:min-h-[480px]">
+              <div className="col-span-1 row-span-1 min-h-0 md:col-span-12 md:min-h-[180px] lg:col-span-8 lg:row-span-2 lg:min-h-[240px]">
                 <ul className="list-none p-0 m-0 h-full">
                   <BlogCard key={blogPosts[0].slug} post={blogPosts[0]} featured />
                 </ul>
@@ -45,7 +45,7 @@ function HomePage() {
             )}
             {/* 2: 右上（横長） */}
             {blogPosts[1] && (
-              <div className="col-span-1 row-span-1 min-h-0 md:col-span-12 md:min-h-[240px] lg:col-span-4 lg:min-h-0">
+              <div className="col-span-1 row-span-1 min-h-0 md:col-span-12 md:min-h-[120px] lg:col-span-4 lg:min-h-0">
                 <ul className="list-none p-0 m-0 h-full">
                   <BlogCard key={blogPosts[1].slug} post={blogPosts[1]} compact="wide" />
                 </ul>
@@ -53,14 +53,14 @@ function HomePage() {
             )}
             {/* 3, 4: 右下（2等分・同サイズ） */}
             {blogPosts[2] && (
-              <div className="col-span-1 row-span-1 min-h-0 md:col-span-6 md:min-h-[220px] lg:col-span-2 lg:min-h-0">
+              <div className="col-span-1 row-span-1 min-h-0 md:col-span-6 md:min-h-[110px] lg:col-span-2 lg:min-h-0">
                 <ul className="list-none p-0 m-0 h-full">
                   <BlogCard key={blogPosts[2].slug} post={blogPosts[2]} compact="square" />
                 </ul>
               </div>
             )}
             {blogPosts[3] && (
-              <div className="col-span-1 row-span-1 min-h-0 md:col-span-6 md:min-h-[220px] lg:col-span-2 lg:min-h-0">
+              <div className="col-span-1 row-span-1 min-h-0 md:col-span-6 md:min-h-[110px] lg:col-span-2 lg:min-h-0">
                 <ul className="list-none p-0 m-0 h-full">
                   <BlogCard key={blogPosts[3].slug} post={blogPosts[3]} compact="square" />
                 </ul>

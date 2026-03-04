@@ -67,6 +67,8 @@ export function ArticleEditor({
 }: ArticleEditorProps) {
   const editorRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
+  const isSyncingRef = useRef(false)
   const [showMeta, setShowMeta] = useState(false)
   const [viewMode, setViewMode] = useState<'both' | 'editor' | 'preview'>('both')
   const [firstViewUploading, setFirstViewUploading] = useState(false)
@@ -125,6 +127,34 @@ export function ArticleEditor({
       await uploadFirstViewImage(file, file.type, file.name)
     },
     [uploadFirstViewImage]
+  )
+
+  const syncScroll = useCallback(
+    (source: 'editor' | 'preview') => {
+      const editor = editorRef.current
+      const preview = previewRef.current
+      if (!editor || !preview || viewMode !== 'both') return
+      if (isSyncingRef.current) return
+      isSyncingRef.current = true
+      requestAnimationFrame(() => {
+        try {
+          if (source === 'editor') {
+            const ratio =
+              editor.scrollTop / Math.max(1, editor.scrollHeight - editor.clientHeight)
+            preview.scrollTop =
+              ratio * Math.max(0, preview.scrollHeight - preview.clientHeight)
+          } else {
+            const ratio =
+              preview.scrollTop / Math.max(1, preview.scrollHeight - preview.clientHeight)
+            editor.scrollTop =
+              ratio * Math.max(0, editor.scrollHeight - editor.clientHeight)
+          }
+        } finally {
+          isSyncingRef.current = false
+        }
+      })
+    },
+    [viewMode]
   )
 
   useEffect(() => {
@@ -297,11 +327,16 @@ export function ArticleEditor({
               placeholder="本文を Markdown で記述..."
               className="flex-1 w-full px-4 py-4 bg-transparent text-zinc-100 placeholder-zinc-600 resize-none focus:outline-none font-mono text-sm leading-relaxed"
               spellCheck={false}
+              onScroll={() => syncScroll('editor')}
             />
           </div>
         )}
         {(viewMode === 'both' || viewMode === 'preview') && (
-          <div className="flex-1 min-w-0 overflow-auto px-4 py-4">
+          <div
+            ref={previewRef}
+            className="flex-1 min-w-0 overflow-auto px-4 py-4"
+            onScroll={() => syncScroll('preview')}
+          >
             <div className={`${PROSE_BASE} max-w-none`}>
               <MarkdownWithLinkCards content={content || '*プレビュー*'} />
             </div>

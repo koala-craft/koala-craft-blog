@@ -68,7 +68,10 @@ function parseArticle(content: string, slug: string): Article | null {
     visibility = 'private'
   }
 
-  const firstView = frontmatter.match(/firstView:\s*(.+)/)?.[1]?.trim()
+  const rawFirstView = frontmatter.match(/firstView:\s*(.+)/)?.[1]?.trim() ?? ''
+  const firstView = rawFirstView
+    ? rawFirstView.replace(/^["'\s\u201C\u201D]+|["'\s\u201C\u201D]+$/g, '')
+    : ''
 
   return {
     slug,
