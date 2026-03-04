@@ -31,6 +31,14 @@ const PANELS = [
     iconColor: 'text-amber-400',
   },
   {
+    to: '/admin/comments',
+    title: 'コメント',
+    description: 'Blog / Article / Stream の新着コメントを確認',
+    icon: MessageSquare,
+    iconBg: 'bg-emerald-500/15',
+    iconColor: 'text-emerald-400',
+  },
+  {
     to: '/admin/works',
     title: 'Work',
     description: 'Author ページのお仕事・制作物の管理',

@@ -102,6 +102,9 @@ function AdminLayout() {
         >
           Stream
         </Link>
+        <Link to="/admin/comments" className="text-cyan-400 hover:underline">
+          コメント
+        </Link>
         <Link to="/admin/settings" className="text-cyan-400 hover:underline">
           サイト設定
         </Link>

@@ -2,12 +2,13 @@
  * Markdown 編集 + プレビュー切り替え
  * スクラップ投稿・コメント・編集フォームで共通利用
  *
- * プレビューは Strata のノート用 MarkdownPreview に近い挙動に合わせる。
+ * プレビューは MarkdownWithLinkCards を使い、
+ * URL だけの行をリンクカードとして表示する。
  */
 
 import { useState } from 'react'
 import { Code, Eye } from 'lucide-react'
-import { EditorMarkdownPreview } from './EditorMarkdownPreview'
+import { MarkdownWithLinkCards } from './MarkdownWithLinkCards'
 
 const PROSE_BASE =
   'prose prose-invert prose-zinc max-w-none prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline prose-sm [&>*:first-child]:!mt-0'
@@ -111,13 +112,21 @@ export function MarkdownEditorWithPreview({
       ) : scrapStyle ? (
         <div className="min-h-[80px] overflow-auto border-b border-zinc-800 px-3 py-2">
           <div className={`${PROSE_BASE} text-zinc-300`}>
-            <EditorMarkdownPreview content={value} onContentChange={onChange} />
+            <MarkdownWithLinkCards
+              content={value || '*プレビューがここに表示されます*'}
+              proseClass={`${PROSE_BASE} prose-sm`}
+              useNativeBr
+            />
           </div>
         </div>
       ) : (
         <div className="rounded-lg bg-zinc-800/50 border border-zinc-700/80 px-3 py-2 min-h-[80px] overflow-auto">
           <div className={`${PROSE_BASE} text-zinc-300`}>
-            <EditorMarkdownPreview content={value} onContentChange={onChange} />
+            <MarkdownWithLinkCards
+              content={value || '*プレビューがここに表示されます*'}
+              proseClass={`${PROSE_BASE} prose-sm`}
+              useNativeBr
+            />
           </div>
         </div>
       )}

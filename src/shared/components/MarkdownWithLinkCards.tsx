@@ -1,6 +1,5 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { extractLinks, isContentOnlyLinks } from '~/shared/lib/contentLinks'
 import { getBlogImageSrc } from '~/shared/lib/blogImageUrl'
 import { isSafeLinkUrl } from '~/shared/lib/safeUrl'
 import { LinkCard } from './LinkCard'
@@ -17,6 +16,9 @@ interface MarkdownWithLinkCardsProps {
 const DEFAULT_PROSE =
   'prose prose-invert prose-zinc max-w-none prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline prose-p:leading-[1.7] prose-li:my-0.5'
 
+// 段落内のテキストノードがベア URL のみかどうか判定するための簡易正規表現
+const BARE_URL_REGEX = /^https?:\/\/[^\s\]\)<>]+$/
+
 /** 画像 URL にスペースや日本語が含まれる場合、Markdown が途中で切れるのを防ぐため <url> で囲む */
 function fixImageUrls(content: string): string {
   return content.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, url) => {
@@ -30,15 +32,11 @@ function ProseLineBreak() {
 }
 
 /**
- * 1行がリンクのみの場合はリンクカードとして表示、
- * それ以外は通常の Markdown として表示
+ * 1行（1段落）がリンクのみの場合はリンクカードとして表示、
+ * それ以外は通常の Markdown として表示。
  *
- * 改行の構造（remarkBreaks）:
- * - 単一改行 → mdast Break → hast br（同一 p 内）
- * - 空行 → 段落区切り → 別 p タグ
- * prose-line-break（span）の挿入箇所:
- * 1. br の置換: components.br で p 内の br を span に置き換え（hasLinkOnlyLine でない場合）
- * 2. 空行の表現: hasLinkOnlyLine 時、空行を span で表現（ReactMarkdown 外）
+ * ReactMarkdown に全文を渡しつつ、p コンポーネントで判定することで
+ * コードブロックや複雑な構造を壊さないようにしている。
  */
 export function MarkdownWithLinkCards({
   content,
@@ -49,17 +47,64 @@ export function MarkdownWithLinkCards({
   if (!content || !String(content).trim()) return null
 
   const fixedContent = fixImageUrls(content)
-  const lines = fixedContent.split('\n')
-  const hasCodeFence = /(^|\n)```/.test(fixedContent)
-  const hasLinkOnlyLine = !hasCodeFence && lines.some((line) => isContentOnlyLinks(line))
 
   const proseStyle = {
     '--prose-br-spacing': brSpacing ?? '0.25em',
   } as React.CSSProperties
 
-  // remarkBreaks: 単一改行→br（p 内）、空行→段落区切り（別 p）。useNativeBr 時は br をそのまま、否則は prose-line-break に置換
   const markdownComponents = {
     ...(useNativeBr ? {} : { br: () => <ProseLineBreak /> }),
+    p: ({
+      children,
+      node,
+      ...props
+    }: React.HTMLAttributes<HTMLParagraphElement> & { node?: any }) => {
+      const paragraph = node as any
+      const childNodes: any[] = paragraph?.children ?? []
+
+      if (paragraph?.type === 'element' && paragraph.tagName === 'p' && Array.isArray(childNodes)) {
+        const links: { url: string; text: string }[] = []
+        let hasNonLinkContent = false
+
+        for (const child of childNodes) {
+          if (child.type === 'element' && child.tagName === 'a') {
+            const url = (child.properties?.href ?? '') as string
+            const textNode = Array.isArray(child.children) ? child.children[0] : null
+            const text =
+              textNode && typeof textNode.value === 'string' && textNode.value.trim()
+                ? (textNode.value as string)
+                : url
+            links.push({ url, text })
+          } else if (child.type === 'text') {
+            const v = typeof child.value === 'string' ? child.value.trim() : ''
+            if (!v) continue
+            if (BARE_URL_REGEX.test(v)) {
+              links.push({ url: v, text: v })
+            } else {
+              hasNonLinkContent = true
+              break
+            }
+          } else {
+            // コードや他の要素が混じっている場合は通常の段落として扱う
+            hasNonLinkContent = true
+            break
+          }
+        }
+
+        const safeLinks = links.filter((l) => isSafeLinkUrl(l.url))
+        if (!hasNonLinkContent && safeLinks.length > 0) {
+          return (
+            <div className="space-y-3 mb-4">
+              {safeLinks.map((link, idx) => (
+                <LinkCard key={`${link.url}-${idx}`} text={link.text} url={link.url} />
+              ))}
+            </div>
+          )
+        }
+      }
+
+      return <p {...props}>{children}</p>
+    },
     a: ({ href, ...props }: React.ComponentPropsWithoutRef<'a'>) =>
       href && isSafeLinkUrl(href) ? (
         <a href={href} rel="noopener noreferrer" target="_blank" {...props} />
@@ -78,59 +123,11 @@ export function MarkdownWithLinkCards({
       ) : null,
   }
 
-  if (!hasLinkOnlyLine) {
-    return (
-      <div className={proseClass} style={proseStyle}>
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          components={markdownComponents}
-        >
-          {fixedContent}
-        </ReactMarkdown>
-      </div>
-    )
-  }
-
   return (
-    <div style={proseStyle}>
-      {lines.map((line, i) => {
-        const trimmed = line.trim()
-        const nextLine = lines[i + 1]
-        const isNextLineEmpty = nextLine !== undefined && !nextLine.trim()
-        
-        if (!trimmed) {
-          return null
-        }
-        if (isContentOnlyLinks(trimmed)) {
-          const links = extractLinks(trimmed).filter((l) => isSafeLinkUrl(l.url))
-          if (links.length === 0) return null
-          return (
-            <div key={i} className={isNextLineEmpty ? 'space-y-3 mb-4' : 'space-y-3'}>
-              {links.map((link, j) => (
-                <LinkCard
-                  key={`${link.url}-${j}`}
-                  text={link.text}
-                  url={link.url}
-                />
-              ))}
-            </div>
-          )
-        }
-        
-        const isHeadingOrList = /^(#{1,6}\s|[-*+]\s|\d+\.\s)/.test(trimmed)
-        const shouldAddMargin = isNextLineEmpty || isHeadingOrList
-        
-        return (
-          <div key={i} className={`${proseClass} ${shouldAddMargin ? 'mb-4' : ''}`}>
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={markdownComponents}
-            >
-              {fixImageUrls(line)}
-            </ReactMarkdown>
-          </div>
-        )
-      })}
+    <div className={proseClass} style={proseStyle}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+        {fixedContent}
+      </ReactMarkdown>
     </div>
   )
 }

@@ -32,6 +32,7 @@ import { Route as ApiContactRouteImport } from './routes/api.contact'
 import { Route as AdminWorksRouteImport } from './routes/admin.works'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminScrapsRouteImport } from './routes/admin.scraps'
+import { Route as AdminCommentsRouteImport } from './routes/admin.comments'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
 import { Route as AdminArticlesRouteImport } from './routes/admin.articles'
 import { Route as AdminWorksIndexRouteImport } from './routes/admin.works.index'
@@ -164,6 +165,11 @@ const AdminScrapsRoute = AdminScrapsRouteImport.update({
   path: '/scraps',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCommentsRoute = AdminCommentsRouteImport.update({
+  id: '/comments',
+  path: '/comments',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminBlogRoute = AdminBlogRouteImport.update({
   id: '/blog',
   path: '/blog',
@@ -258,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/work': typeof WorkRouteWithChildren
   '/admin/articles': typeof AdminArticlesRouteWithChildren
   '/admin/blog': typeof AdminBlogRouteWithChildren
+  '/admin/comments': typeof AdminCommentsRoute
   '/admin/scraps': typeof AdminScrapsRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/works': typeof AdminWorksRouteWithChildren
@@ -292,6 +299,7 @@ export interface FileRoutesByTo {
   '/author': typeof AuthorRoute
   '/contact': typeof ContactRoute
   '/work': typeof WorkRouteWithChildren
+  '/admin/comments': typeof AdminCommentsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/api/contact': typeof ApiContactRoute
   '/articles/$slug': typeof ArticlesSlugRoute
@@ -332,6 +340,7 @@ export interface FileRoutesById {
   '/work': typeof WorkRouteWithChildren
   '/admin/articles': typeof AdminArticlesRouteWithChildren
   '/admin/blog': typeof AdminBlogRouteWithChildren
+  '/admin/comments': typeof AdminCommentsRoute
   '/admin/scraps': typeof AdminScrapsRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/works': typeof AdminWorksRouteWithChildren
@@ -375,6 +384,7 @@ export interface FileRouteTypes {
     | '/work'
     | '/admin/articles'
     | '/admin/blog'
+    | '/admin/comments'
     | '/admin/scraps'
     | '/admin/settings'
     | '/admin/works'
@@ -409,6 +419,7 @@ export interface FileRouteTypes {
     | '/author'
     | '/contact'
     | '/work'
+    | '/admin/comments'
     | '/admin/settings'
     | '/api/contact'
     | '/articles/$slug'
@@ -448,6 +459,7 @@ export interface FileRouteTypes {
     | '/work'
     | '/admin/articles'
     | '/admin/blog'
+    | '/admin/comments'
     | '/admin/scraps'
     | '/admin/settings'
     | '/admin/works'
@@ -656,6 +668,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminScrapsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/comments': {
+      id: '/admin/comments'
+      path: '/comments'
+      fullPath: '/admin/comments'
+      preLoaderRoute: typeof AdminCommentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/blog': {
       id: '/admin/blog'
       path: '/blog'
@@ -838,6 +857,7 @@ const AdminWorksRouteWithChildren = AdminWorksRoute._addFileChildren(
 interface AdminRouteChildren {
   AdminArticlesRoute: typeof AdminArticlesRouteWithChildren
   AdminBlogRoute: typeof AdminBlogRouteWithChildren
+  AdminCommentsRoute: typeof AdminCommentsRoute
   AdminScrapsRoute: typeof AdminScrapsRouteWithChildren
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminWorksRoute: typeof AdminWorksRouteWithChildren
@@ -847,6 +867,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminArticlesRoute: AdminArticlesRouteWithChildren,
   AdminBlogRoute: AdminBlogRouteWithChildren,
+  AdminCommentsRoute: AdminCommentsRoute,
   AdminScrapsRoute: AdminScrapsRouteWithChildren,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminWorksRoute: AdminWorksRouteWithChildren,

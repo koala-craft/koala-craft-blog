@@ -122,3 +122,25 @@ export const deleteComment = createServerFn({ method: 'POST' })
       return { success: true }
     }
   )
+
+/** 管理者用: 全コンテンツ（blog/article/stream）の最新コメントを取得 */
+export const getRecentComments = createServerFn({ method: 'GET' })
+  .inputValidator((data: { accessToken: string; limit?: number }) => data)
+  .handler(async ({ data }): Promise<Comment[]> => {
+    const auth = await requireAdminAuth(data.accessToken)
+    if (!auth.ok) return []
+
+    const supabase = getSupabaseWithToken(data.accessToken)
+    if (!supabase) return []
+
+    const limit = data.limit && data.limit > 0 && data.limit <= 200 ? data.limit : 50
+
+    const { data: rows, error } = await supabase
+      .from('comments')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (error || !rows) return []
+    return rows as Comment[]
+  })
