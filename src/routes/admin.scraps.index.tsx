@@ -8,9 +8,10 @@ export const Route = createFileRoute('/admin/scraps/')({
   validateSearch: (s: Record<string, unknown>) => ({
     _refresh: typeof s._refresh === 'number' ? s._refresh : undefined,
   }),
-  loaderDeps: ({ search }) => ({ bypassCache: !!search._refresh }),
+  // _refresh の値ごとにローダーを再実行し、キャッシュを確実にバイパスする
+  loaderDeps: ({ search }) => ({ refresh: search._refresh ?? 0 }),
   loader: ({ deps }) =>
-    getScraps({ data: { bypassCache: deps?.bypassCache } }),
+    getScraps({ data: { bypassCache: !!deps?.refresh } }),
 })
 
 function groupByMonth(scraps: ScrapWithSlug[]): Map<string, ScrapWithSlug[]> {
@@ -95,7 +96,7 @@ function AdminScrapsIndex() {
                             </div>
                           )}
                           <div className="mt-2 text-xs text-zinc-500">
-                            {s.created_at} · コメント {s.comments.length}件
+                            {s.created_at} · STREAM {s.comments.length}件
                           </div>
                         </Link>
                       </li>

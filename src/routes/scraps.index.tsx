@@ -22,9 +22,10 @@ export const Route = createFileRoute('/scraps/')({
     q: typeof search.q === 'string' ? search.q : undefined,
     _refresh: typeof search._refresh === 'number' ? search._refresh : undefined,
   }),
-  loaderDeps: ({ search }) => ({ bypassCache: !!search._refresh }),
+  // _refresh の値ごとにローダーを再実行し、キャッシュを確実にバイパスする
+  loaderDeps: ({ search }) => ({ refresh: search._refresh ?? 0 }),
   loader: ({ deps }) =>
-    getScraps({ data: { bypassCache: deps?.bypassCache } }),
+    getScraps({ data: { bypassCache: !!deps?.refresh } }),
 })
 
 function groupByMonth(scraps: ScrapWithSlug[]): Map<string, ScrapWithSlug[]> {
@@ -66,19 +67,6 @@ function ScrapsIndex() {
   useEffect(() => {
     setSearchInput(searchQuery ?? '')
   }, [searchQuery])
-
-  // 作成後の _refresh を URL から削除
-  useEffect(() => {
-    if (!routeSearch?._refresh) return
-    navigate({
-      to: '/scraps',
-      search: {
-        ...buildTagSearch(filterTags),
-        q: searchQuery ?? undefined,
-      },
-      replace: true,
-    })
-  }, [routeSearch?._refresh, filterTags, searchQuery, navigate])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -216,7 +204,7 @@ function ScrapsIndex() {
                             </>
                           )}
                           <span className="text-zinc-600">·</span>
-                          <span>コメント {s.comments.length}件</span>
+                          <span>STREAM {s.comments.length}件</span>
                         </>
                       }
                       ariaLabel={`Stream「${displayTitle || s.title}」を読む`}

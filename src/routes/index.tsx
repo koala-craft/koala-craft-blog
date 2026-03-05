@@ -193,7 +193,7 @@ function HomePage() {
                             </>
                           )}
                           <span className="text-zinc-600">·</span>
-                          <span>コメント {s.comments.length}件</span>
+                          <span>STREAM {s.comments.length}件</span>
                         </>
                       }
                       ariaLabel={`Stream「${displayTitle || s.title}」を読む`}

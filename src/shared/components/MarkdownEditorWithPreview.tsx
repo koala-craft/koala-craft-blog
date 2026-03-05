@@ -11,7 +11,7 @@ import { Code, Eye } from 'lucide-react'
 import { MarkdownWithLinkCards } from './MarkdownWithLinkCards'
 
 const PROSE_BASE =
-  'prose prose-invert prose-zinc max-w-none prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline prose-sm [&>*:first-child]:!mt-0'
+  'prose prose-invert prose-zinc max-w-none prose-a:text-cyan-400 prose-a:no-underline prose-sm [&>*:first-child]:!mt-0'
 
 type MarkdownEditorWithPreviewProps = {
   value: string
