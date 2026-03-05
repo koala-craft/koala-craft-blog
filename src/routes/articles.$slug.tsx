@@ -13,7 +13,7 @@ import { useAuth } from '~/features/admin/useAuth'
 import { getSession } from '~/features/admin/auth'
 
 const PROSE_BASE =
-  'prose prose-invert prose-zinc max-w-none tracking-tight prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline prose-p:text-[1.05rem] prose-p:leading-[1.7] prose-li:text-[1.05rem] prose-li:my-0.5 prose-headings:font-semibold'
+  'prose prose-invert prose-zinc max-w-none tracking-tight prose-a:text-cyan-400 prose-a:no-underline prose-p:text-[1.05rem] prose-p:leading-[1.7] prose-li:text-[1.05rem] prose-li:my-0.5 prose-headings:font-semibold'
 
 const IMAGE_EXTS: Record<string, string> = {
   'image/png': 'png',

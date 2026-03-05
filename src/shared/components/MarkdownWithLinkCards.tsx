@@ -15,7 +15,7 @@ interface MarkdownWithLinkCardsProps {
 }
 
 const DEFAULT_PROSE =
-  'prose prose-invert prose-zinc max-w-none prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline prose-p:leading-[1.7] prose-li:my-0.5'
+  'prose prose-invert prose-zinc max-w-none prose-a:text-cyan-400 prose-a:no-underline prose-p:leading-[1.7] prose-li:my-0.5'
 
 // 段落内のテキストノードがベア URL のみかどうか判定するための簡易正規表現
 const BARE_URL_REGEX = /^https?:\/\/[^\s\]\)<>]+$/

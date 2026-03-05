@@ -53,7 +53,7 @@ type ScrapEditorProps = {
 }
 
 const PROSE_BASE =
-  'prose prose-invert prose-zinc max-w-none prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline'
+  'prose prose-invert prose-zinc max-w-none prose-a:text-cyan-400 prose-a:no-underline'
 
 export function ScrapEditor({
   meta,

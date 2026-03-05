@@ -14,7 +14,7 @@ import { ConfirmModal } from '~/shared/components/ConfirmModal'
 import type { Comment, ContentType } from '~/features/comments/types'
 
 const PROSE_BASE =
-  'prose prose-invert prose-zinc max-w-none prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline prose-sm'
+  'prose prose-invert prose-zinc max-w-none prose-a:text-cyan-400 prose-a:no-underline prose-sm'
 
 type CommentSectionProps = {
   contentType: ContentType
