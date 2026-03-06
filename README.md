@@ -48,7 +48,7 @@ Copy-Item .env.example .env
 ### 4. 開発サーバー起動
 
 ```bash
-pnpm dev
+pnpm run dev
 ```
 
 http://localhost:3000 でアクセス可能。
