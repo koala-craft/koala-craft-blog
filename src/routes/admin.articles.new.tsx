@@ -1,6 +1,10 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState, useCallback } from 'react'
-import { createArticle } from '~/features/articles/articlesAdminApi'
+import {
+  createArticle,
+  prepareArticleContentForSave,
+} from '~/features/articles/articlesAdminApi'
+import { clearBlogTempAssets } from '~/features/blog/blogAdminApi'
 import { getSession } from '~/features/admin/auth'
 import { ArticleEditor, type ArticleEditorMeta } from '~/features/articles/ArticleEditor'
 import { validateSlug } from '~/shared/lib/slug'
@@ -38,24 +42,40 @@ function AdminArticleNew() {
     }
 
     setSaving(true)
+    const prepared = await prepareArticleContentForSave({
+      data: {
+        accessToken: session.session.access_token,
+        providerToken: session.session.provider_token ?? undefined,
+        slug: meta.slug.trim(),
+        content,
+        firstView: meta.firstView,
+      },
+    })
+    if (!prepared.success) {
+      setSaving(false)
+      setMessage({ type: 'error', text: prepared.error ?? '画像のアップロードに失敗しました' })
+      return
+    }
+
     const result = await createArticle({
       data: {
         accessToken: session.session.access_token,
         providerToken: session.session.provider_token ?? undefined,
         slug: meta.slug.trim(),
         title: meta.title.trim() || meta.slug.trim(),
-        content,
+        content: prepared.content,
         topics: meta.topics
           .split(',')
           .map((t) => t.trim())
           .filter(Boolean),
         visibility: meta.visibility,
-        firstView: meta.firstView,
+        firstView: prepared.firstView,
       },
     })
     setSaving(false)
 
     if (result.success) {
+      await clearBlogTempAssets({ data: { accessToken: session.session.access_token } })
       navigate({ to: '/admin/articles/$slug', params: { slug: meta.slug.trim() } })
     } else {
       setMessage({ type: 'error', text: result.error ?? '保存に失敗しました' })

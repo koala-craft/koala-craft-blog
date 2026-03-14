@@ -1,10 +1,12 @@
-import { createFileRoute, Link, notFound } from '@tanstack/react-router'
+import { createFileRoute, Link, notFound, useNavigate } from '@tanstack/react-router'
 import { useState, useCallback } from 'react'
 import { getArticle } from '~/features/articles/api'
 import {
   updateArticle,
   deleteArticle,
+  prepareArticleContentForSave,
 } from '~/features/articles/articlesAdminApi'
+import { clearBlogTempAssets } from '~/features/blog/blogAdminApi'
 import { getSession } from '~/features/admin/auth'
 import { ArticleEditor, type ArticleEditorMeta } from '~/features/articles/ArticleEditor'
 import { validateSlug } from '~/shared/lib/slug'
@@ -33,6 +35,8 @@ function AdminArticleEdit() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
+  const navigate = useNavigate()
+
   const handleSave = useCallback(async () => {
     setMessage(null)
     const session = await getSession()
@@ -47,31 +51,54 @@ function AdminArticleEdit() {
       return
     }
 
+    const effectiveSlug = newSlug && validateSlug(newSlug) ? newSlug : initialArticle.slug
+
     setSaving(true)
+    const prepared = await prepareArticleContentForSave({
+      data: {
+        accessToken: session.session.access_token,
+        providerToken: session.session.provider_token ?? undefined,
+        slug: effectiveSlug,
+        content: content ?? '',
+        firstView: meta.firstView,
+      },
+    })
+    if (!prepared.success) {
+      setSaving(false)
+      setMessage({ type: 'error', text: prepared.error ?? '画像のアップロードに失敗しました' })
+      return
+    }
+
     const result = await updateArticle({
       data: {
         accessToken: session.session.access_token,
         providerToken: session.session.provider_token ?? undefined,
         slug: initialArticle.slug,
-        newSlug: newSlug && newSlug !== initialArticle.slug ? newSlug : undefined,
+        newSlug: effectiveSlug !== initialArticle.slug ? effectiveSlug : undefined,
         title: (meta.title ?? '').trim() || initialArticle.slug,
-        content: content ?? '',
+        content: prepared.content,
         topics: (meta.topics ?? '')
           .split(',')
           .map((t) => (t ?? '').trim())
           .filter(Boolean),
         visibility: meta.visibility,
-        firstView: meta.firstView ?? '',
+        firstView: prepared.firstView ?? '',
       },
     })
     setSaving(false)
 
     if (result.success) {
       setMessage({ type: 'success', text: '保存しました' })
+      setContent(prepared.content)
+      setMeta((m) => ({ ...m, slug: effectiveSlug, firstView: prepared.firstView }))
+      await clearBlogTempAssets({ data: { accessToken: session.session.access_token } })
+      if (effectiveSlug !== initialArticle.slug) {
+        navigate({ to: '/admin/articles/$slug', params: { slug: effectiveSlug } })
+      }
     } else {
       setMessage({ type: 'error', text: result.error ?? '保存に失敗しました' })
     }
-  }, [initialArticle, meta, content])
+  }, [initialArticle, meta, content, navigate])
 
   const handleDelete = useCallback(async () => {
     setMessage(null)

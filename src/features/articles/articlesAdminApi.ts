@@ -161,6 +161,115 @@ export type UpdateArticleInput = {
   firstView?: string
 }
 
+export type PrepareArticleContentForSaveInput = {
+  accessToken: string
+  providerToken?: string
+  slug: string
+  content: string
+  firstView?: string
+}
+
+/** 保存時: 本文内・firstView の temp URL を GitHub にアップロードして差し替え（ブログの prepareBlogContentForSave と同様） */
+export const prepareArticleContentForSave = createServerFn({ method: 'POST' })
+  .inputValidator((data: PrepareArticleContentForSaveInput) => data)
+  .handler(
+    async ({
+      data,
+    }): Promise<
+      | { success: true; content: string; firstView?: string }
+      | { success: false; error: string }
+    > => {
+      const auth = await requireAdminAuth(data.accessToken)
+      if (!auth.ok) return { success: false, error: auth.error }
+
+      const githubUrl = await getGithubRepoUrlForServer()
+      if (!githubUrl || !isValidGithubRepoUrl(githubUrl)) {
+        return { success: false, error: 'GitHub リポジトリ URL を設定してください' }
+      }
+
+      const parsed = parseRepoUrl(githubUrl)
+      if (!parsed) return { success: false, error: 'リポジトリ URL を解析できません' }
+
+      const token = data.providerToken ?? process.env.GITHUB_TOKEN
+      if (!token) {
+        return {
+          success: false,
+          error: 'GitHub トークンが必要です。ログインし直すか、GITHUB_TOKEN を設定してください',
+        }
+      }
+
+      if (!validateSlug(data.slug)) {
+        return { success: false, error: 'スラッグが不正です' }
+      }
+
+      const tempUrlRegex = /!\[([^\]]*)\]\((\/api\/blog-assets\/temp\/[^)]+)\)/g
+      let updatedContent = data.content
+      let match: RegExpExecArray | null
+
+      while ((match = tempUrlRegex.exec(data.content)) !== null) {
+        const alt = match[1]
+        const tempUrl = match[2]
+        const tempFilename = tempUrl.replace('/api/blog-assets/temp/', '')
+        const buffer = readTempImage(tempFilename)
+        if (!buffer) continue
+
+        const base64 = buffer.toString('base64')
+        const filename =
+          alt?.trim() && /^[^/\\]+\.(png|jpg|jpeg|gif|webp)$/i.test(alt)
+            ? alt
+            : `image-${Date.now()}.${tempFilename.split('.').pop() ?? 'png'}`
+
+        const assetPath = `articles/assets/${data.slug}/${filename}`
+        const assetSha = await getFileSha(parsed.owner, parsed.repo, assetPath, token)
+        const result = await updateFileOnGitHub(
+          parsed.owner,
+          parsed.repo,
+          assetPath,
+          base64,
+          `article: add image ${filename}`,
+          token,
+          assetSha ?? undefined,
+          true
+        )
+        if (!result.success) {
+          return { success: false, error: result.error ?? `画像 ${filename} のアップロードに失敗しました` }
+        }
+        const relativePath = `articles/assets/${data.slug}/${filename}`
+        updatedContent = updatedContent.split(tempUrl).join(relativePath)
+      }
+
+      let resolvedFirstView = data.firstView?.trim() || undefined
+      if (resolvedFirstView?.startsWith('/api/blog-assets/temp/')) {
+        const tempFilename = resolvedFirstView.replace('/api/blog-assets/temp/', '')
+        const buffer = readTempImage(tempFilename)
+        if (buffer) {
+          const base64 = buffer.toString('base64')
+          const ext = tempFilename.split('.').pop() ?? 'png'
+          const filename = `firstview-${Date.now()}.${ext}`
+          const assetPath = `articles/assets/${data.slug}/${filename}`
+          const assetSha = await getFileSha(parsed.owner, parsed.repo, assetPath, token)
+          const result = await updateFileOnGitHub(
+            parsed.owner,
+            parsed.repo,
+            assetPath,
+            base64,
+            `article: add firstview ${filename}`,
+            token,
+            assetSha ?? undefined,
+            true
+          )
+          if (result.success) {
+            resolvedFirstView = `articles/assets/${data.slug}/${filename}`
+          } else {
+            return { success: false, error: result.error ?? 'ファーストビュー画像のアップロードに失敗しました' }
+          }
+        }
+      }
+
+      return { success: true, content: updatedContent, firstView: resolvedFirstView }
+    }
+  )
+
 export const updateArticle = createServerFn({ method: 'POST' })
   .inputValidator((data: UpdateArticleInput) => data)
   .handler(async ({ data }): Promise<{ success: boolean; error?: string }> => {
