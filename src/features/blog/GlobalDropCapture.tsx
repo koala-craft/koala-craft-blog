@@ -36,26 +36,28 @@ function isMdEditorPage(): boolean {
 
 export function GlobalDropCapture() {
   useLayoutEffect(() => {
-    const handleDragOver = (e: DragEvent) => {
+    const handleDragOver = (e: Event) => {
+      const ev = e as DragEvent
       if (!isMdEditorPage()) return
-      if (!e.dataTransfer) return
-      e.preventDefault()
-      e.stopPropagation()
-      if (e.dataTransfer.types?.includes('Files')) {
-        e.dataTransfer.dropEffect = 'copy'
+      if (!ev.dataTransfer) return
+      ev.preventDefault()
+      ev.stopPropagation()
+      if (ev.dataTransfer.types?.includes('Files')) {
+        ev.dataTransfer.dropEffect = 'copy'
       }
     }
 
-    const handleDrop = (e: DragEvent) => {
-      const files = e.dataTransfer?.files
+    const handleDrop = (e: Event) => {
+      const ev = e as DragEvent
+      const files = ev.dataTransfer?.files
       if (!files?.length) return
       if (!isMdEditorPage()) return
-      e.preventDefault()
-      e.stopPropagation()
+      ev.preventDefault()
+      ev.stopPropagation()
       const detail: BlogEditorFileDropDetail = {
         files: Array.from(files),
-        clientX: e.clientX,
-        clientY: e.clientY,
+        clientX: ev.clientX,
+        clientY: ev.clientY,
       }
       if (isBlogEditorPage()) {
         window.dispatchEvent(
