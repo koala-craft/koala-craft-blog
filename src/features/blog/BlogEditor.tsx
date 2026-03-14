@@ -87,6 +87,8 @@ export function BlogEditor({
   const [firstViewUploading, setFirstViewUploading] = useState(false)
   const [existingTags, setExistingTags] = useState<string[]>([])
   const [showTagPicker, setShowTagPicker] = useState(false)
+  /** temp URL → data URL（本番で /api/blog-assets/temp が 404 になるためプレビュー用に保持） */
+  const [tempImageDataUrls, setTempImageDataUrls] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (showMeta) {
@@ -181,6 +183,9 @@ export function BlogEditor({
         }
 
         const tempUrl = tempResult.tempUrl
+        if (tempResult.dataUrl) {
+          setTempImageDataUrls((prev) => ({ ...prev, [tempUrl]: tempResult.dataUrl }))
+        }
         const markdown = `\n![${filename}](${tempUrl})\n`
         insertImageAtCursor(markdown)
       }
@@ -260,6 +265,9 @@ export function BlogEditor({
         setFirstViewUploading(false)
 
         if (result.success) {
+          if (result.dataUrl) {
+            setTempImageDataUrls((prev) => ({ ...prev, [result.tempUrl]: result.dataUrl }))
+          }
           onMetaChange({ ...meta, firstView: result.tempUrl })
         } else {
           setPasteError(result.error ?? '仮保存に失敗しました')
@@ -518,6 +526,7 @@ export function BlogEditor({
             content={content}
             tags={meta.tags}
             firstView={meta.firstView}
+            tempImageDataUrls={tempImageDataUrls}
             createdAt=""
             updatedAt=""
           />
@@ -557,6 +566,7 @@ export function BlogEditor({
               content={content || '*本文を入力するとプレビューが表示されます*'}
               proseClass={`${PROSE_BASE} prose-sm`}
               useNativeBr
+              tempImageDataUrls={tempImageDataUrls}
             />
           </div>
         </div>
@@ -572,6 +582,7 @@ function ArticlePreview({
   content,
   tags,
   firstView,
+  tempImageDataUrls,
   createdAt,
   updatedAt,
 }: {
@@ -579,6 +590,7 @@ function ArticlePreview({
   content: string
   tags: string
   firstView?: string
+  tempImageDataUrls?: Record<string, string>
   createdAt: string
   updatedAt: string
 }) {
@@ -586,6 +598,9 @@ function ArticlePreview({
     .split(',')
     .map((t) => t.trim())
     .filter(Boolean)
+  const firstViewSrc = firstView
+    ? (tempImageDataUrls?.[firstView] ?? getBlogImageSrc(firstView))
+    : undefined
 
   return (
     <div className="max-w-[96rem] mx-auto">
@@ -593,7 +608,7 @@ function ArticlePreview({
         {firstView ? (
           <div className="relative w-full aspect-[21/9] min-h-[200px] overflow-hidden">
             <img
-              src={getBlogImageSrc(firstView)}
+              src={firstViewSrc}
               alt=""
               className="absolute inset-0 w-full h-full object-cover"
             />
@@ -641,6 +656,7 @@ function ArticlePreview({
               content={content || '*本文を入力するとプレビューが表示されます*'}
               proseClass={`${PROSE_BASE} prose-sm`}
               useNativeBr
+              tempImageDataUrls={tempImageDataUrls}
             />
           </div>
         </div>

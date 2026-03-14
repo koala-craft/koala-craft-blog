@@ -12,6 +12,8 @@ interface MarkdownWithLinkCardsProps {
   brSpacing?: string
   /** true: br をネイティブのまま（p 内の line-height で余白）。false: br を prose-line-break に置換。デフォルト true で折り返しと同様の行間 */
   useNativeBr?: boolean
+  /** temp URL → data URL。本番で /api/blog-assets/temp が 404 になるため、プレビュー用に data URL を渡す */
+  tempImageDataUrls?: Record<string, string>
 }
 
 const DEFAULT_PROSE =
@@ -37,11 +39,12 @@ function ZoomableImage({
   alt,
   className,
   onClick,
+  tempImageDataUrls,
   ...props
-}: React.ComponentPropsWithoutRef<'img'>) {
+}: React.ComponentPropsWithoutRef<'img'> & { tempImageDataUrls?: Record<string, string> }) {
   const [open, setOpen] = useState(false)
   if (!src) return null
-  const resolved = getBlogImageSrc(src)
+  const resolved = tempImageDataUrls?.[src] ?? getBlogImageSrc(src)
 
   const handleClick: React.MouseEventHandler<HTMLImageElement> = (e) => {
     onClick?.(e)
@@ -88,6 +91,7 @@ export function MarkdownWithLinkCards({
   proseClass = DEFAULT_PROSE,
   brSpacing,
   useNativeBr = true,
+  tempImageDataUrls,
 }: MarkdownWithLinkCardsProps) {
   if (!content || !String(content).trim()) return null
 
@@ -156,7 +160,9 @@ export function MarkdownWithLinkCards({
       ) : (
         <span {...props} />
       ),
-    img: (props: React.ComponentPropsWithoutRef<'img'>) => <ZoomableImage {...props} />,
+    img: (props: React.ComponentPropsWithoutRef<'img'>) => (
+      <ZoomableImage {...props} tempImageDataUrls={tempImageDataUrls} />
+    ),
   }
 
   return (

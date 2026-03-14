@@ -338,18 +338,35 @@ export type SaveBlogImageToTempInput = {
   contentBase64: string
 }
 
-/** 画像を仮保存し、プレビュー用 URL を返す（貼り付け直後に即時表示） */
+const MIME_BY_EXT: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  webp: 'image/webp',
+}
+
+/** 画像を仮保存し、プレビュー用 URL と data URL を返す（本番では temp GET が 404 になるため data URL でプレビュー） */
 export const saveBlogImageToTemp = createServerFn({ method: 'POST' })
   .inputValidator((data: SaveBlogImageToTempInput) => data)
-  .handler(async ({ data }): Promise<{ success: true; tempUrl: string } | { success: false; error: string }> => {
-    const ext = data.filename.split('.').pop()?.toLowerCase() ?? 'png'
-    if (!/^(png|jpg|jpeg|gif|webp)$/.test(ext)) {
-      return { success: false, error: '対応していない画像形式です' }
+  .handler(
+    async ({
+      data,
+    }): Promise<
+      | { success: true; tempUrl: string; dataUrl: string }
+      | { success: false; error: string }
+    > => {
+      const ext = data.filename.split('.').pop()?.toLowerCase() ?? 'png'
+      if (!/^(png|jpg|jpeg|gif|webp)$/.test(ext)) {
+        return { success: false, error: '対応していない画像形式です' }
+      }
+      const key = `img-${Date.now()}-${Math.random().toString(36).slice(2)}`
+      const tempUrl = saveTempImage(key, data.contentBase64, ext)
+      const mime = MIME_BY_EXT[ext] ?? 'image/png'
+      const dataUrl = `data:${mime};base64,${data.contentBase64}`
+      return { success: true, tempUrl, dataUrl }
     }
-    const key = `img-${Date.now()}-${Math.random().toString(36).slice(2)}`
-    const tempUrl = saveTempImage(key, data.contentBase64, ext)
-    return { success: true, tempUrl }
-  })
+  )
 
 /** 保存時に仮ディレクトリをクリア（管理者のみ） */
 export const clearBlogTempAssets = createServerFn({ method: 'POST' })
