@@ -1,13 +1,16 @@
 /**
  * 記事（Article）執筆エディタ
  * ブログと同様の UX、topics（タグ）形式
+ * 本文への画像ドロップ・貼り付け対応
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ImagePlus } from 'lucide-react'
 import { saveBlogImageToTemp } from '~/features/blog/blogAdminApi'
+import { getSession } from '~/features/admin/auth'
 import { getBlogImageSrc } from '~/shared/lib/blogImageUrl'
 import { MarkdownWithLinkCards } from '~/shared/components/MarkdownWithLinkCards'
+import { ARTICLE_EDITOR_FILE_DROP, type ArticleEditorFileDropDetail } from '~/features/blog/GlobalDropCapture'
 
 const IMAGE_EXTS: Record<string, string> = {
   'image/png': 'png',
@@ -27,6 +30,19 @@ function toValidImageFilename(original: string | undefined, mimeType: string): s
   const candidate = `${base}.${extFromName}`
   if (/^[^/\\]+\.(png|jpg|jpeg|gif|webp)$/.test(candidate)) return candidate
   return `firstview-${Date.now()}.${ext}`
+}
+
+/** 本文用画像のファイル名（firstview プレフィックスなし） */
+function toBodyImageFilename(original: string | undefined, mimeType: string): string {
+  const ext = IMAGE_EXTS[mimeType] ?? 'png'
+  if (!original?.trim()) return `${Date.now()}.${ext}`
+  const baseName = original.split(/[/\\]/).pop() ?? original
+  const match = baseName.match(/^(.+?)\.([^.]+)$/)
+  const extFromName = match && /^png|jpg|jpeg|gif|webp$/i.test(match[2]) ? match[2].toLowerCase() : ext
+  const base = match ? match[1] : baseName
+  const candidate = `${base}.${extFromName}`
+  if (/^[^/\\]+\.(png|jpg|jpeg|gif|webp)$/.test(candidate)) return candidate
+  return `${Date.now()}.${ext}`
 }
 
 export type ArticleEditorMeta = {
@@ -66,10 +82,81 @@ export function ArticleEditor({
   extraActions,
 }: ArticleEditorProps) {
   const editorRef = useRef<HTMLTextAreaElement>(null)
+  const editorContainerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showMeta, setShowMeta] = useState(false)
   const [viewMode, setViewMode] = useState<'both' | 'editor' | 'preview'>('both')
   const [firstViewUploading, setFirstViewUploading] = useState(false)
+  const [pasteError, setPasteError] = useState<string | null>(null)
+
+  const insertImageAtCursor = useCallback(
+    (markdown: string, position?: { start: number; end: number }) => {
+      const textarea = editorRef.current
+      if (textarea && position !== undefined) {
+        onContentChange((prev) => prev.slice(0, position.start) + markdown + prev.slice(position.end))
+        setTimeout(() => {
+          textarea.focus()
+          const pos = position.start + markdown.length
+          textarea.setSelectionRange(pos, pos)
+        }, 0)
+      } else if (textarea) {
+        const start = textarea.selectionStart
+        const end = textarea.selectionEnd
+        onContentChange((prev) => prev.slice(0, start) + markdown + prev.slice(end))
+        setTimeout(() => {
+          textarea.focus()
+          const pos = start + markdown.length
+          textarea.setSelectionRange(pos, pos)
+        }, 0)
+      } else {
+        onContentChange((prev) => prev + markdown)
+      }
+    },
+    [onContentChange]
+  )
+
+  const uploadImageBlob = useCallback(
+    async (blob: Blob, mimeType: string, cursorPosition?: { start: number; end: number }) => {
+      if (!slug.trim()) {
+        setPasteError('画像を貼り付けるには先にスラッグを入力してください')
+        setTimeout(() => setPasteError(null), 3000)
+        return
+      }
+      setPasteError(null)
+      const session = await getSession()
+      if (!session) {
+        setPasteError('ログインが必要です')
+        setTimeout(() => setPasteError(null), 3000)
+        return
+      }
+      const originalName = blob instanceof File ? blob.name : undefined
+      const filename = toBodyImageFilename(originalName, mimeType)
+      const reader = new FileReader()
+      reader.onload = async () => {
+        try {
+          const dataUrl = reader.result as string
+          if (!dataUrl.startsWith('data:')) return
+          const base64 = dataUrl.split(',')[1]
+          if (!base64) return
+          const tempResult = await saveBlogImageToTemp({ data: { filename, contentBase64: base64 } })
+          if (!tempResult.success) {
+            setPasteError(tempResult.error ?? '仮保存に失敗しました')
+            setTimeout(() => setPasteError(null), 3000)
+            return
+          }
+          const markdown = `\n![${filename}](${tempResult.tempUrl})\n`
+          insertImageAtCursor(markdown, cursorPosition)
+        } catch (err) {
+          setPasteError(err instanceof Error ? err.message : '画像の添付に失敗しました')
+          setTimeout(() => setPasteError(null), 3000)
+        }
+      }
+      reader.readAsDataURL(blob)
+    },
+    [insertImageAtCursor, slug]
+  )
+  const uploadImageBlobRef = useRef(uploadImageBlob)
+  uploadImageBlobRef.current = uploadImageBlob
 
   const uploadFirstViewImage = useCallback(
     async (blob: Blob, mimeType: string, originalName?: string) => {
@@ -137,6 +224,73 @@ export function ArticleEditor({
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [onSave])
+
+  useLayoutEffect(() => {
+    const handleCustomDrop = (e: Event) => {
+      const { files, clientX, clientY } = (e as CustomEvent<ArticleEditorFileDropDetail>).detail
+      const container = editorContainerRef.current
+      if (!container) return
+      const rect = container.getBoundingClientRect()
+      if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) return
+      const file = files.find((f) => f.type.startsWith('image/'))
+      if (!file) return
+      const textarea = editorRef.current
+      const cursorPos =
+        textarea != null ? { start: textarea.selectionStart, end: textarea.selectionEnd } : undefined
+      uploadImageBlobRef.current(file, file.type, cursorPos)
+    }
+    window.addEventListener(ARTICLE_EDITOR_FILE_DROP, handleCustomDrop)
+    return () => window.removeEventListener(ARTICLE_EDITOR_FILE_DROP, handleCustomDrop)
+  }, [])
+
+  useEffect(() => {
+    const el = editorContainerRef.current
+    if (!el) return
+    const handleNativeDragOver = (e: Event) => {
+      const ev = e as DragEvent
+      if (ev.dataTransfer) {
+        ev.preventDefault()
+        ev.stopPropagation()
+        ev.dataTransfer.dropEffect = 'copy'
+      }
+    }
+    const handleNativeDrop = (e: Event) => {
+      const ev = e as DragEvent
+      const files = ev.dataTransfer?.files
+      if (!files?.length) return
+      ev.preventDefault()
+      ev.stopPropagation()
+      const file = Array.from(files).find((f) => f.type.startsWith('image/'))
+      if (!file) return
+      const textarea = editorRef.current
+      const cursorPos =
+        textarea != null ? { start: textarea.selectionStart, end: textarea.selectionEnd } : undefined
+      uploadImageBlobRef.current(file, file.type, cursorPos)
+    }
+    const opts = { capture: true }
+    el.addEventListener('dragover', handleNativeDragOver, opts)
+    el.addEventListener('drop', handleNativeDrop, opts)
+    return () => {
+      el.removeEventListener('dragover', handleNativeDragOver, opts)
+      el.removeEventListener('drop', handleNativeDrop, opts)
+    }
+  }, [viewMode])
+
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent) => {
+      const items = e.clipboardData?.items
+      if (!items) return
+      const file = Array.from(items).find((item) => item.kind === 'file' && item.type.startsWith('image/'))
+      if (!file) return
+      const blob = file.getAsFile()
+      if (!blob) return
+      e.preventDefault()
+      const start = editorRef.current?.selectionStart ?? 0
+      const end = editorRef.current?.selectionEnd ?? 0
+      uploadImageBlob(blob, file.type, { start, end })
+    },
+    [uploadImageBlob]
+  )
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)] min-h-[500px] -mx-4">
@@ -277,24 +431,28 @@ export function ArticleEditor({
         </div>
       )}
 
-      {message && (
+      {(message || pasteError) && (
         <div
           className={`px-4 py-2 text-sm shrink-0 ${
-            message.type === 'success' ? 'text-green-400' : 'text-amber-400'
+            pasteError ? 'text-amber-400' : message!.type === 'success' ? 'text-green-400' : 'text-amber-400'
           }`}
         >
-          {message.text}
+          {pasteError ?? message!.text}
         </div>
       )}
 
       <div className="flex-1 flex min-h-0 overflow-hidden">
         {(viewMode === 'both' || viewMode === 'editor') && (
-          <div className="flex-1 min-w-0 flex flex-col border-r border-zinc-800">
+          <div
+            ref={editorContainerRef}
+            className="flex-1 min-w-0 flex flex-col border-r border-zinc-800"
+          >
             <textarea
               ref={editorRef}
               value={content}
               onChange={(e) => onContentChange(e.target.value)}
-              placeholder="本文を Markdown で記述..."
+              onPaste={handlePaste}
+              placeholder="本文を Markdown で記述...（画像は Ctrl+V またはドラッグ＆ドロップで追加できます）"
               className="flex-1 w-full px-4 py-4 bg-transparent text-zinc-100 placeholder-zinc-600 resize-none focus:outline-none font-mono text-sm leading-relaxed"
               spellCheck={false}
             />
