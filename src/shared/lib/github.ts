@@ -248,14 +248,19 @@ export async function fetchRawFileBinary(downloadUrl: string): Promise<ArrayBuff
 /**
  * owner/repo/path から画像を取得。main → master の順でブランチを試行
  * （リポジトリのデフォルトブランチが master の場合に対応）
+ * パスに日本語・スペースが含まれる場合は各セグメントをエンコードして raw URL を組み立てる
  */
 export async function fetchRawFileBinaryWithBranchFallback(
   owner: string,
   repo: string,
   filePath: string
 ): Promise<ArrayBuffer | null> {
+  const encodedPath = filePath
+    .split('/')
+    .map((seg) => encodeURIComponent(seg))
+    .join('/')
   for (const branch of ['main', 'master']) {
-    const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${filePath}`
+    const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${encodedPath}`
     const buf = await fetchRawFileBinary(url)
     if (buf) return buf
   }

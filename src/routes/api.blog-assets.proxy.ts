@@ -87,11 +87,11 @@ async function serveImage(
   const ext = decodedUrl.split('.').pop()?.toLowerCase() ?? 'png'
   const contentType = getContentType(ext)
 
-  const localPath = getLocalPathFromRawUrl(decodedUrl)
-  if (localPath) {
-    const fullPath = path.join(CONTENT_DIR, localPath)
-    if (fs.existsSync(fullPath)) {
-      try {
+  try {
+    const localPath = getLocalPathFromRawUrl(decodedUrl)
+    if (localPath) {
+      const fullPath = path.join(CONTENT_DIR, localPath)
+      if (fs.existsSync(fullPath)) {
         const buffer = fs.readFileSync(fullPath)
         return new Response(buffer, {
           headers: {
@@ -99,10 +99,10 @@ async function serveImage(
             'Cache-Control': 'public, max-age=3600',
           },
         })
-      } catch {
-        // 読み込み失敗時は GitHub にフォールバック
       }
     }
+  } catch {
+    // ローカル参照で例外が出ても GitHub を試す
   }
 
   let buffer = await fetchRawFileBinary(decodedUrl)
@@ -155,10 +155,10 @@ export const Route = createFileRoute('/api/blog-assets/proxy')({
         } else if (targetPath && isValidAssetPath(targetPath)) {
           const normalizedPath = targetPath.replace(/^\/+/, '').replace(/\\/g, '/')
 
-          // path 指定時はローカル優先
-          const fullPath = path.join(CONTENT_DIR, normalizedPath)
-          if (fs.existsSync(fullPath)) {
-            try {
+          // ローカル優先（存在しなければ・読み込み失敗・例外時は必ず GitHub へフォールバック）
+          try {
+            const fullPath = path.join(CONTENT_DIR, normalizedPath)
+            if (fs.existsSync(fullPath)) {
               const buffer = fs.readFileSync(fullPath)
               const ext = normalizedPath.split('.').pop()?.toLowerCase() ?? 'png'
               return new Response(buffer, {
@@ -167,12 +167,12 @@ export const Route = createFileRoute('/api/blog-assets/proxy')({
                   'Cache-Control': 'public, max-age=3600',
                 },
               })
-            } catch {
-              // フォールバック
             }
+          } catch {
+            // ローカル参照で例外が出ても GitHub を試す
           }
 
-          // ローカルになければ GitHub から取得（main → master の順で試行）
+          // ローカルにない／読めない場合は必ず GitHub から取得（main → master の順で試行）
           const buffer = await fetchRawFileBinaryWithBranchFallback(
             parsed.owner,
             parsed.repo,
