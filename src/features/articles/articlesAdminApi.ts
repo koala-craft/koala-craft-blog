@@ -93,9 +93,8 @@ export const createArticle = createServerFn({ method: 'POST' })
 
     const now = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
 
+    // ヘッダー画像: STREAM MEMO（Scraps）と同様に temp → GitHub アップロード → raw URL
     let resolvedFirstView = data.firstView?.trim() || undefined
-
-    // firstView が temp URL の場合は GitHub にアップロードして差し替え（新規作成時）
     if (resolvedFirstView?.startsWith('/api/blog-assets/temp/')) {
       const tempFilename = resolvedFirstView.replace('/api/blog-assets/temp/', '')
       const buffer = readTempImage(tempFilename)
@@ -238,6 +237,7 @@ export const prepareArticleContentForSave = createServerFn({ method: 'POST' })
         updatedContent = updatedContent.split(tempUrl).join(relativePath)
       }
 
+      // ヘッダー画像: STREAM MEMO（Scraps）と同様に temp → GitHub アップロード → raw URL で返す
       let resolvedFirstView = data.firstView?.trim() || undefined
       if (resolvedFirstView?.startsWith('/api/blog-assets/temp/')) {
         const tempFilename = resolvedFirstView.replace('/api/blog-assets/temp/', '')
@@ -259,9 +259,10 @@ export const prepareArticleContentForSave = createServerFn({ method: 'POST' })
             true
           )
           if (result.success) {
-            resolvedFirstView = `articles/assets/${data.slug}/${filename}`
+            const encodedPath = `articles/assets/${encodeURIComponent(data.slug)}/${encodeURIComponent(filename)}`
+            resolvedFirstView = `https://raw.githubusercontent.com/${parsed.owner}/${parsed.repo}/main/${encodedPath}`
           } else {
-            return { success: false, error: result.error ?? 'ファーストビュー画像のアップロードに失敗しました' }
+            return { success: false, error: result.error ?? 'ヘッダー画像のアップロードに失敗しました' }
           }
         }
       }
@@ -316,12 +317,11 @@ export const updateArticle = createServerFn({ method: 'POST' })
     const existing = await getArticle({ data: { slug: data.slug } })
     const createdAt = existing?.createdAt ?? new Date().toISOString().slice(0, 10)
 
+    // ヘッダー画像: STREAM MEMO（Scraps）と同様に temp → GitHub アップロード → raw URL
     let resolvedFirstView =
       data.firstView !== undefined
         ? (data.firstView?.trim() || undefined)
         : existing?.firstView
-
-    // firstView が temp URL の場合は GitHub にアップロードして差し替え
     if (resolvedFirstView?.startsWith('/api/blog-assets/temp/')) {
       const tempFilename = resolvedFirstView.replace('/api/blog-assets/temp/', '')
       const buffer = readTempImage(tempFilename)
