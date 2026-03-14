@@ -133,10 +133,21 @@ export const Route = createFileRoute('/api/blog-assets/proxy')({
       GET: async ({ request }) => {
         const url = new URL(request.url)
         const targetUrl = url.searchParams.get('url')
-        const targetPath = url.searchParams.get('path')
+        let targetPath = url.searchParams.get('path')
+        if (targetPath != null && targetPath) {
+          try {
+            targetPath = decodeURIComponent(targetPath)
+          } catch {
+            // そのまま使用
+          }
+        }
 
-        const githubUrl = await getGithubRepoUrlForServer()
-        const parsed = parseRepoUrl(githubUrl)
+        // 本番では content/ が無く config が読めないことがあるため、env を直接フォールバック
+        let githubUrl = await getGithubRepoUrlForServer()
+        if (!githubUrl && typeof process !== 'undefined' && process.env?.GITHUB_REPO_URL) {
+          githubUrl = process.env.GITHUB_REPO_URL
+        }
+        const parsed = parseRepoUrl(githubUrl ?? '')
         if (!parsed) {
           return new Response('Forbidden', { status: 403 })
         }
@@ -172,7 +183,8 @@ export const Route = createFileRoute('/api/blog-assets/proxy')({
             // ローカル参照で例外が出ても GitHub を試す
           }
 
-          // ローカルにない／読めない場合は必ず GitHub から取得（main → master の順で試行）
+          // ローカルにない／読めない場合は必ず GitHub から取得（本番で content/ が無い場合のメインパス）
+          // プライベートリポジトリの場合は GITHUB_TOKEN の設定が必要
           const buffer = await fetchRawFileBinaryWithBranchFallback(
             parsed.owner,
             parsed.repo,
